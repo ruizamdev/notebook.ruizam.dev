@@ -1,0 +1,57 @@
+---
+sidebar_position: 1
+---
+
+# Tema de GRUB
+
+En este apartado veremos como configurar un tema para el gestor de arranque GRUB, para personalizar la apariencia del menú de arranque.
+
+## Descargar un tema
+
+Para configurar un tema primero debemos de descargar uno, hay muchos temas disponibles en internet, en lo particular, siempre que busco un tema para GRUB, lo hago desde la pagina [Gnome-look](https://www.gnome-look.org), ésta pagina es un gran repositorio de temas para diferentes partes de tu entorno de escritorio, como iconos, fondos de pantalla, temas para el gestor de ventanas, y también temas para el gestor de arranque GRUB.
+
+Si bien no soy de las personas que personalizan al extremo, si me gusta cambiar de vez en cuando siertos aspectos visuales, el tema para GRUB que utilizo actualmente es [CyberGRUB 2077](https://www.gnome-look.org/p/2235245), un tema inspirado en uno de mis videojuegos favoritos, Cyberpunk 2077.
+
+## Instalar el tema
+
+Ya que tenemos el tema descargado, descomprimimos, copiamos a la ruta donde se almacenan los temas de grub, modificamos el fichero de configuracion, actualizamos y listo, el tema se aplicará en el próximo arranque.
+
+Estos son los pasos:
+
+### 1. Descomprimir el tema
+
+Dependiendo del formato de compresión, utilizaremos la herramienta adecuada, normalmente los temas vienen en formato tar.gz, por lo que en la mayoría de casos utilizaremos el comando `tar`:
+
+```bash
+tar -xvzf CyberGRUB-2077.tar.gz
+```
+
+### 2. Copiar el tema a la ruta de temas de GRUB
+
+Una vez descomprimido el tema, debemos copiar la carpeta del tema a la ruta donde se almacenan los temas de GRUB, normalmente esta ruta es `/boot/grub/themes/`, por lo que el comando sería:
+
+```bash
+sudo cp -r CyberGRUB-2077 /boot/grub/themes/
+```
+
+**NOTA:**
+
+En algunos casos, el directorio `themes` no existe en la ruta `/boot/grub/`, por lo que debemos crear el directorio antes de copiar el tema, el comando para crear el directorio es:
+
+```bash
+sudo mkdir -p /boot/grub/themes/
+```
+
+### 3. Modificar el fichero de configuración de GRUB y actualizar la configuración
+
+Para aplicar el tema, debemos modificar el fichero de configuración de GRUB, normalmente este fichero es `/etc/default/grub`, y agregar la siguiente línea:
+
+```bash
+GRUB_THEME="/boot/grub/themes/CyberGRUB-2077/theme.txt"
+```
+
+Luego de modificar el fichero de configuración, debemos actualizar la configuración de GRUB para que los cambios se apliquen, el comando para actualizar la configuración de GRUB es:
+
+```bash
+sudo update-grub
+```

@@ -24,10 +24,10 @@
   --color-link-hover: #69d2ff;
   --color-focus-ring: #ffb020;
 
-  --font-family-display: 'Space Grotesk', sans-serif;
-  --font-family-heading: 'Inter Tight', sans-serif;
-  --font-family-body: 'Inter', sans-serif;
-  --font-family-mono: 'JetBrains Mono', monospace;
+  --font-family-display: "Space Grotesk", sans-serif;
+  --font-family-heading: "Inter Tight", sans-serif;
+  --font-family-body: "Inter", sans-serif;
+  --font-family-mono: "JetBrains Mono", monospace;
 
   --ifm-color-primary: var(--color-brand-500);
   --ifm-color-primary-dark: var(--color-brand-600);
@@ -69,7 +69,7 @@
   --docusaurus-highlighted-code-line-bg: rgb(54 194 255 / 0.12);
 }
 
-[data-theme='dark'] {
+[data-theme="dark"] {
   --ifm-color-primary: var(--color-brand-500);
   --ifm-color-primary-dark: var(--color-brand-600);
   --ifm-color-primary-darker: var(--color-brand-700);
@@ -138,7 +138,7 @@ a:hover {
 }
 
 .navbar {
-  backdrop-filter: blur(14px);
+  /* backdrop-filter: blur(14px); */
   border-bottom: 1px solid var(--color-border-default);
 }
 

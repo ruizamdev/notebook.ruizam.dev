@@ -1,0 +1,79 @@
+---
+sidebar_position: 1
+---
+
+# Información de software
+
+En este apartado veremos como obtener información del sistema operativo en general, overviews y detalles de la versión del sistema operativo, y otros datos relacionados con el software del sistema operativo.
+
+## Versión del sistema operativo
+
+### Fichero `os-release`
+
+Para obtener info de este fichero solo concatenamos con el comando `cat` el fichero `/etc/os-release`:
+
+```bash
+cat /etc/os-release
+```
+
+**Ejemplo de salida:**
+
+```text
+PRETTY_NAME="Ubuntu 24.04.4 LTS"
+NAME="Ubuntu"
+VERSION_ID="24.04"
+VERSION="24.04.4 LTS (Noble Numbat)"
+VERSION_CODENAME=noble
+ID=ubuntu
+ID_LIKE=debian
+HOME_URL="https://www.ubuntu.com/"
+SUPPORT_URL="https://help.ubuntu.com/"
+BUG_REPORT_URL="https://bugs.launchpad.net/ubuntu/"
+PRIVACY_POLICY_URL="https://www.ubuntu.com/legal/terms-and-policies/privacy-policy"
+UBUNTU_CODENAME=noble
+LOGO=ubuntu-logo
+```
+
+### Comando `lsb_release`
+
+Otra forma de obtener información del sistema operativo es con el comando `lsb_release`:
+
+```bash
+lsb_release -a
+```
+
+**Ejemplo de salida:**
+
+```text
+No LSB modules are available.
+Distributor ID:	Ubuntu
+Description:	Ubuntu 24.04.4 LTS
+Release:	24.04
+Codename:	noble
+```
+
+### Comando `hostnamectl`
+
+También es posible obtener la version del os con el comando `hostnamectl`, éste comando podría entrar también en la categoria de información de hardware, ya que también muestra información del hardware:
+
+```bash
+hostnamectl
+```
+
+**Ejemplo de salida:**
+
+```text
+ Static hostname: kusanagi
+       Icon name: computer-desktop
+         Chassis: desktop 🖥️
+      Machine ID: 12a364fae1d1448d9f670380f7a5e07d
+         Boot ID: cee508d2e7df4f8e9f275a1447a5a7fc
+Operating System: Ubuntu 24.04.4 LTS
+          Kernel: Linux 6.17.0-22-generic
+    Architecture: x86-64
+ Hardware Vendor: Gigabyte Technology Co., Ltd.
+  Hardware Model: B365 M AORUS ELITE
+Firmware Version: F3d
+   Firmware Date: Tue 2020-08-18
+    Firmware Age: 5y 8month 1w 1d
+```

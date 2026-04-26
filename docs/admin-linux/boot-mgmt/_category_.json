@@ -1,0 +1,8 @@
+{
+  "label": "Gestión de arranque",
+  "position": 2,
+  "link": {
+    "type": "generated-index",
+    "description": "Gestión de arranque, configuraciones y herramientas para el manejo del arranque con grub."
+  }
+}
