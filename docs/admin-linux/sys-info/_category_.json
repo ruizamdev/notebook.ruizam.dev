@@ -1,0 +1,8 @@
+{
+  "label": "Información del sistema",
+  "position": 1,
+  "link": {
+    "type": "generated-index",
+    "description": "Información del sistema, hardware y software, para administración de sistemas operativos basados en GNU/Linux."
+  }
+}
