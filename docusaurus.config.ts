@@ -23,7 +23,7 @@ const config: Config = {
 
   // GitHub pages deployment config.
   // If you aren't using GitHub pages, you don't need these.
-  organizationName: "ruizam",
+  organizationName: "ruizamdev",
   projectName: "notebook.ruizam.dev",
 
   onBrokenLinks: "throw",
@@ -82,12 +82,12 @@ const config: Config = {
           position: "left",
           label: "Docs",
         },
-        // { to: "/blog", label: "Blog", position: "left" },
-        // {
-        //   href: "https://github.com/ruizam/notebook.ruizam.dev",
-        //   label: "GitHub",
-        //   position: "right",
-        // },
+        { to: "/blog", label: "Blog", position: "left" },
+        {
+          href: "https://github.com/ruizamdev/notebook.ruizam.dev",
+          label: "GitHub",
+          position: "right",
+        },
       ],
     },
     footer: {
@@ -107,7 +107,7 @@ const config: Config = {
           items: [
             {
               label: "GitHub",
-              href: "https://github.com/ruizam/notebook.ruizam.dev",
+              href: "https://github.com/ruizamdev/notebook.ruizam.dev",
             },
           ],
         },
