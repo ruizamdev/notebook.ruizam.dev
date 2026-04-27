@@ -4,7 +4,87 @@ sidebar_position: 1
 
 # Gestión de Docker Compose
 
-## Desactivar un proyecto Docker Compose
+## Levantar servicios
+
+Para levantar los servicios definidos en un fichero `docker-compose.yml`, es necesario estar ubicado en el directorio donde se encuentra dicho fichero y ejecutar el siguiente comando:
+
+```bash
+docker compose up -d
+```
+
+El flag `-d` indica que los servicios se ejecutarán en segundo plano (detached mode). Si deseas ver los logs de los servicios, puedes omitir el flag `-d` o usar el siguiente comando:
+
+```bash
+docker compose logs -f
+```
+
+El flag `-f` (follow) permite seguir los logs en tiempo real.
+
+Si se quiere reconstruir las imágenes antes de levantar los servicios, se puede usar el siguiente comando:
+
+```bash
+docker compose up -d --build
+```
+
+## Ver el estado de los servicios
+
+Para tener una visión general de los proyectos que están corriendo, puedes usar el siguiente comando:
+
+```bash
+docker compose ls
+```
+
+Esto lista todos los proyectos Docker Compose activos, mostrando su nombre, estado y número de servicios.
+
+Para ver el estado de los servicios levantados por Docker Compose, puedes usar el siguiente comando:
+
+```bash
+docker compose ps
+```
+
+Nota: Este comando muestra el estado de los servicios definidos en el fichero `docker-compose.yml` del directorio actual. Si tienes varios proyectos Docker Compose, asegúrate de estar en el directorio correcto o especificar el proyecto con el flag `-p`.
+
+Para poder ver los servicios de un proyecto específico, puedes usar el siguiente comando:
+
+```bash
+docker compose -p <nombre-del-proyecto> ps
+```
+
+## Parar los servicios
+
+### Parar sin borrar los contenedores
+
+Para parar los servicios sin eliminar los contenedores, puedes usar el siguiente comando:
+
+```bash
+docker compose stop
+```
+
+Para volver a levantarlo:
+
+```bash
+docker compose start
+```
+
+### Parar y eliminar los contenedores
+
+Si lo que deseas es parar los servicios y eliminar los contenedores:
+
+```bash
+docker compose down
+```
+
+Y para borrar los volumenes también:
+
+```bash
+docker compose down -v
+```
+
+Úsalo cuando quieras reiniciar una DB o servicios persistentes desde cero.
+
+### Para un proyecto específico
+
+Los comandos anteriores dan por hecho que estamos ubicados en el directorio del proyecto Docker Compose que queremos gestionar. Si tienes varios proyectos Docker Compose y quieres gestionar uno específico, puedes usar el flag `-p` para especificar el nombre del proyecto.
 
 Lista los proyectos Docker Compose activos:
 
@@ -12,8 +92,8 @@ Lista los proyectos Docker Compose activos:
 docker compose ls
 ```
 
-Desactiva el proyecto desead:
+Desactiva el proyecto deseado:
 
-```bashbash
+```bash
 docker compose -p <nombre-del-proyecto> down
 ```
