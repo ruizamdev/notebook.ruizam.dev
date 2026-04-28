@@ -34,3 +34,9 @@ corepack enable pnpm
 ```
 
 Con esto, cualquier entorno que use Corepack para gestionar pnpm, como Railway, CI/CD, IDEs, etc., sabrá que versión de pnpm usar gracias a la opción `packageManager` en el package.json.
+
+Esta es la forma recomendada para asegurar la consistencia en el uso de pnpm en diferentes entornos, evitando así errores relacionados con versiones incompatibles de pnpm al desplegar aplicaciones. Debemos evitar instalar pnpm de manera global, como cualquier otro paquete:
+
+```bash
+npm install -g pnpm
+```
