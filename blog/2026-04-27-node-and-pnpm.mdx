@@ -1,0 +1,36 @@
+---
+slug: node-and-pnpm
+title: Mi experiencia con Node.js y pnpm
+authors: [ruizam]
+tags: [nodejs, pnpm, web development]
+---
+
+Al encontrarme con un error en Railway relacionado con pnpm, intentando desplegar este sitio de documentación y blogging, decidí adentrarme más en el mecanismo de node y los gestores de paquetes. En este artículo, compartiré mi experiencia y las soluciones que encontré para resolver el problema.
+
+## Descripción del problema
+
+Como decia, me encontraba haciendo updates y deploys a este sitio en casa, todo bien hasta ese momento, ayer domingo, hoy lunes que cloné el repo en mi laptop e instalé dependencias para correr en local, al volver a hacer el despliegue en Railway, me encontré con el siguiente error:
+
+```json
+✖ Failed to resolve version 9 of pnpm
+```
+
+Indagando con Nara, mi ChatGPT (ella se puso ese nombre), me explicó que era muy probable que el entorno de mi desktop tenía una versión diferente a la del entorno de mi laptop, por lo que al hacer pnpm install, se estaba instalando una versión diferente a la que Railway esperaba, lo que causaba el error al intentar desplegar.
+
+## Solución
+
+Nara me sugirió agregar una opción al package.json:
+
+```json
+"packageManager": "pnpm@10.33.2"
+```
+
+Esto le indicaría a cualquier entorno que use pnpm que debe usar esa versión específica, asegurando así la consistencia entre los diferentes entornos de desarrollo y despliegue.
+
+Para que esto surta efecto, y cualquier tooling como la de Railway, CI/CD, IDEs, etc., sepa mediante la opción `packageManager` que versión de pnpm usar, es necesario instalar pnpm mediante el Gestor de gestores de paquetes, Corepack, sí, suena a rola de los tigres del norte, pero así es, Corepack es una herramienta que viene con Node.js y permite gestionar diferentes gestores de paquetes como npm, yarn y pnpm. Desde la pagina oficial de nodejs, puedes elegir que gestor de paquetes deseas usar, al seleccionar pnpm, aparecerá el comando para instalarlo y activarlo:
+
+```bash
+corepack enable pnpm
+```
+
+Con esto, cualquier entorno que use Corepack para gestionar pnpm, como Railway, CI/CD, IDEs, etc., sabrá que versión de pnpm usar gracias a la opción `packageManager` en el package.json.
