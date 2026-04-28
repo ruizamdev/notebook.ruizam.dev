@@ -17,3 +17,18 @@ hola:
   label: Hola
   permalink: /hola
   description: Hola tag description
+
+pnpm:
+  label: pnpm
+  permalink: /pnpm
+  description: pnpm tag description
+
+nodejs:
+  label: Node.js
+  permalink: /nodejs
+  description: Node.js tag description
+
+web development:
+  label: Web Development
+  permalink: /web-development
+  description: Web Development tag description

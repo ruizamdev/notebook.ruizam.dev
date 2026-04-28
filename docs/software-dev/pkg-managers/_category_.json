@@ -1,0 +1,8 @@
+{
+  "label": "Node Package Managers",
+  "position": 1,
+  "link": {
+    "type": "generated-index",
+    "description": "Gestores de paquetes para Node.js."
+  }
+}

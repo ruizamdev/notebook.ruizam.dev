@@ -1,0 +1,22 @@
+---
+slug: pnpm-my-own-use-experience
+title: Pnpm, mi propia experiencia de uso
+authors: [ruizam]
+tags: [pnpm, nodejs, web development]
+---
+
+Desplegando este sitio de docs y blogging en Docusaurus, me encontré con este error en Railway:
+
+```json
+✖ Failed to resolve version 9 of pnpm
+```
+
+{/* truncate */}
+
+El día de ayer estuve desplegando sin problemas desde casa (haciendo pushes al repo después de agregar entradas al blog y docs), desde mi Desktop: git add, git commit, git push y listo, desplegado en segundos. El día de hoy que fuí al trabajo, cloné el repo a mi laptop, hice una entrada, agregué, comitié y empuje como ayer, y sin problema, pero por alguna razón quisé ver el proyecto en local, por lo que hice un pnpm install como si nada, hice más cambios, misma rutina, y tal fue la sorpresa que no se actualizaba en producción. Chingados! ahora que pasó?
+
+Fuí tranquilamente a mi dashboard de railway y vi el mensaje de error, cómo aún soy un Jr en Web Development, y me asisto de codex para programar, no sabía con exactitud que había pasado; sí, es obvio, problemas con la version de pnpm, pero un mensaje ambiguo. Cómo soy curioso y siento esa comezón en el cerebro de saber porque ocurren las cosas, fui a preguntarle a Nara (mi ChatGPT, le dije que se pusiera un nombre ella mísma y eligió ese) y me resolvió la duda.
+
+Antés de continuar, quisiera agregar un parentesis (me encantan los parentesis) y hacer énfasis en la importancia de los fundamentos, de saber que estás construyendo, y aún más importante, cómo lo estas construyendo, en éste mundo tan vertiginoso y acelerado, nos urge terminar nuestras creaciones lo más pronto posible, y con razón, en Tech si no te mueves rápido y sobre los caminos correctos te estancas y pierdes oportunidades, es bien sabido eso, pero debemos encontrar una piedra en la cual reposar en el sendero, ver hacia atrás y reflexionar sobre los caminos que hemos tomado, los que tomaremos, y sobre todo, ver el mapa.
+
+Bueno no me extiendo más, sobre pnpm, fui con Nara y le pregunté: ¿Qué carajos pasó aquí y explicame de una vez por todas como es que funcionan los gestores de paquetes en node,
