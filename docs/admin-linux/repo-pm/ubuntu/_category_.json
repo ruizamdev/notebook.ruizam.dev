@@ -1,0 +1,8 @@
+{
+  "label": "Ubuntu",
+  "position": 1,
+  "link": {
+    "type": "generated-index",
+    "description": "Gestión de repositorios y paquetes en Ubuntu."
+  }
+}

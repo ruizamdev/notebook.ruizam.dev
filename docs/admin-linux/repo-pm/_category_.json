@@ -1,0 +1,8 @@
+{
+  "label": "Repositorios y gestión de paquetes",
+  "position": 4,
+  "link": {
+    "type": "generated-index",
+    "description": "Gestión de repositorios y gestores de paquetes para la instalación de programas en distribuciones GNU/Linux.."
+  }
+}

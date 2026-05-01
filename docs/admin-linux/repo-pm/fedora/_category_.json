@@ -1,0 +1,8 @@
+{
+  "label": "Fedora",
+  "position": 2,
+  "link": {
+    "type": "generated-index",
+    "description": "Gestión de repositorios y paquetes en Fedora."
+  }
+}
