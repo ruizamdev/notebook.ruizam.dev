@@ -1,0 +1,144 @@
+---
+sidebar_position: 1
+---
+
+# Manejo básico
+
+La gestión de repositorios y paquetes en Fedora se realiza principalmente a través de la herramienta `dnf`, que es el gestor de paquetes predeterminado en esta distribución. A continuación, se describen los comandos básicos para gestionar repositorios.
+
+## Listar repositorios
+
+Para listar los repositorios configurados en el sistema, puedes usar el siguiente comando:
+
+```bash
+dnf repolist
+```
+
+Como podemos observar mas adelante en la salida, esto nos muestra ID y nombre del repositorio existente en nuestro sistema.
+
+Ejemplo de salida:
+
+```txt
+repo id                                                                          repo name
+brave-browser                                                                    Brave Browser
+code                                                                             Visual Studio Code
+copr:copr.fedorainfracloud.org:phracek:PyCharm                                   Copr repo for PyCharm owned by phracek
+docker-ce-stable                                                                 Docker CE Stable - x86_64
+fedora                                                                           Fedora 44 - x86_64
+fedora-cisco-openh264                                                            Fedora 44 openh264 (From Cisco) - x86_64
+gh-cli                                                                           packages for the GitHub CLI
+google-chrome                                                                    google-chrome
+rpmfusion-nonfree-nvidia-driver                                                  RPM Fusion for Fedora 44 - Nonfree - NVIDIA Driver
+rpmfusion-nonfree-steam                                                          RPM Fusion for Fedora 44 - Nonfree - Steam
+updates                                                                          Fedora 44 - x86_64 - Updates
+warpdotdev                                                                       warpdotdev
+```
+
+Podemos ver una lista mas detallada con:
+
+```bash
+dnf repolist --all
+```
+
+En esta salida, además de ID y nombre, también nos muestra el estado actual del repositorio (habilitado o deshabilitado)
+
+Ejemplo de salida:
+
+```txt
+repo id                                                                 repo name                                                                                               status
+brave-browser                                                           Brave Browser                                                                                          enabled
+code                                                                    Visual Studio Code                                                                                     enabled
+copr:copr.fedorainfracloud.org:phracek:PyCharm                          Copr repo for PyCharm owned by phracek                                                                 enabled
+docker-ce-stable                                                        Docker CE Stable - x86_64                                                                              enabled
+docker-ce-stable-source                                                 Docker CE Stable - Sources                                                                            disabled
+docker-ce-test                                                          Docker CE Test - x86_64                                                                               disabled
+docker-ce-test-source                                                   Docker CE Test - Sources                                                                              disabled
+fedora                                                                  Fedora 44 - x86_64                                                                                     enabled
+fedora-cisco-openh264                                                   Fedora 44 openh264 (From Cisco) - x86_64                                                               enabled
+fedora-cisco-openh264-debuginfo                                         Fedora 44 openh264 (From Cisco) - x86_64 - Debug                                                      disabled
+fedora-cisco-openh264-source                                            Fedora 44 openh264 (From Cisco) - x86_64 - Source                                                     disabled
+fedora-debuginfo                                                        Fedora 44 - x86_64 - Debug                                                                            disabled
+fedora-source                                                           Fedora 44 - Source                                                                                    disabled
+gh-cli                                                                  packages for the GitHub CLI                                                                            enabled
+google-chrome                                                           google-chrome                                                                                          enabled
+rpmfusion-nonfree-nvidia-driver                                         RPM Fusion for Fedora 44 - Nonfree - NVIDIA Driver                                                     enabled
+rpmfusion-nonfree-nvidia-driver-debuginfo                               RPM Fusion for Fedora 44 - Nonfree - NVIDIA Driver Debug                                              disabled
+rpmfusion-nonfree-nvidia-driver-source                                  RPM Fusion for Fedora 44 - Nonfree - NVIDIA Driver Source                                             disabled
+rpmfusion-nonfree-steam                                                 RPM Fusion for Fedora 44 - Nonfree - Steam                                                             enabled
+rpmfusion-nonfree-steam-debuginfo                                       RPM Fusion for Fedora 44 - Nonfree - Steam Debug                                                      disabled
+rpmfusion-nonfree-steam-source                                          RPM Fusion for Fedora 44 - Nonfree - Steam Source                                                     disabled
+updates                                                                 Fedora 44 - x86_64 - Updates                                                                           enabled
+updates-debuginfo                                                       Fedora 44 - x86_64 - Updates - Debug                                                                  disabled
+updates-source                                                          Fedora 44 - Updates Source                                                                            disabled
+updates-testing                                                         Fedora 44 - x86_64 - Test Updates                                                                     disabled
+updates-testing-debuginfo                                               Fedora 44 - x86_64 - Test Updates Debug                                                               disabled
+updates-testing-source                                                  Fedora 44 - Test Updates Source                                                                       disabled
+warpdotdev                                                              warpdotdev                                                                                             enabled
+```
+
+## Ver detalles de un repositorio en concreto
+
+Para esto escribimos la opción `repoinfo` seguido del ID del repo:
+
+```bash
+dnf repoinfo <repo-id>
+# Ejemplo:
+dnf repoinfo fedora
+```
+
+Ejemplo de salida:
+
+```txt
+Updating and loading repositories:
+ Fedora 44 - x86_64 - Updates                                                                                                                 100% |  19.6 KiB/s |  25.2 KiB |  00m01s
+ Visual Studio Code                                                                                                                           100% |   2.4 KiB/s |   1.5 KiB |  00m01s
+Repositories loaded.
+Repo ID              : fedora
+Name                 : Fedora 44 - x86_64
+Status               : enabled
+Priority             : 99
+Cost                 : 1000
+Type                 : available
+Metadata expire      : 604800 seconds (last: 2026-04-30 19:15:51)
+Skip if unavailable  : false
+Config file          : /etc/yum.repos.d/fedora.repo
+URLs                 :
+  Base URL           : rsync://nnenix.mm.fcix.net/fedora-enchilada/linux/development/44/Everything/x86_64/os/ (142 more)
+  Metalink           : https://mirrors.fedoraproject.org/metalink?repo=fedora-44&arch=x86_64
+OpenPGP              :
+  Keys               : file:///etc/pki/rpm-gpg/RPM-GPG-KEY-fedora-44-x86_64
+  Verify repodata    : false
+  Verify packages    : true
+Repodata info        :
+  Available packages : 76354
+  Total packages     : 76354
+  Size               : 113.1 GiB
+  Revision           : 1777013749
+  Updated            : 2026-04-24 06:55:49
+```
+
+## Habilitar o deshabilitar un repositorio
+
+Fedora utiliza `dnf config-manager`. Si no existe en el sistema, lo podemos instalar así:
+
+```bash
+sudo dnf install dnf-plugins-core
+```
+
+### Habilitar repo
+
+```bash
+sudo dnf config-manager setopt <id-repo>.enabled=1
+# Ejemplo:
+sudo dnf config-manager setopt fedora.enabled=1
+```
+
+### Deshabilitar repo
+
+```bash
+sudo dnf config-manager setopt <id-repo>.enabled=0
+# Ejemplo:
+sudo dnf config-manager setopt fedora.enabled=0
+```
+
+Nota: Obviamente el repo `fedora` es el repo oficial del sistema, por lo que no es recomendable deshabilitarlo.
