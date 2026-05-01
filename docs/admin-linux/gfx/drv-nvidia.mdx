@@ -1,0 +1,50 @@
+---
+sidebar_position: 2
+---
+
+# Instalar drivers nvidia
+
+Una cosa que rompe los huevos en linux son los drivers privativos, en algunas distros como Ubuntu la instalación de drivers se realiza con la instalación inicial y no resulta en un mayor problema, pero en otras no es tan automático, para alguien sin experiencia en éste tema (como me pasó a mi al inicio, por eso estoy haciendo esta documentación) instalar esto resulta como meterse en la madriguera del conejo... o del pingüino. Pero para eso estamos los aferrados, para alcanzar a ese pingüino de una vez por todas y ponerle a ese hardware salvaje las riendas de una vez por todas.
+
+En esta primera edición veremos la instalación de los drivers en la distro **Fedora**
+
+## Fedora
+
+### Agregar el repo RPM Fusion
+
+Para instalar los drivers necesitamos instalar el repo comunitario RPM Fusion, las instrucciones para esto están aquí mísmo en esta documentación, te dejo en enlace [aquí](../repo-pm/fedora/repo-mgmt/rpm-fusion.mdx)
+
+### Instalación del driver NVIDIA
+
+Instalamos los paquetes necesarios:
+
+```bash
+sudo dnf install akmod-nvidia xorg-x11-drv-nvidia-cuda
+```
+
+Qué hace cada uno:
+
+- `akmod-nvidia`: Instala el driver NVIDIA y compila el módulo para tu kernel.
+- `xorg-x11-drv-nvidia-cuda`: Agrega soporte útil para CUDA/nvidia-smi.
+
+No reinicies en chinga, espera a que compile el módulo, podemos revisar con este comando:
+
+```bash
+modinfo -F version nvidia
+```
+
+Si aparece la versión del controlador ya la hicimos. Ahora sí, reiniciamos.
+
+## Verificación
+
+Ahora que reiniciamos verificamos con:
+
+```bash
+nvidia-smi
+```
+
+También verificamos los módulos:
+
+```bash
+lsmod | grep nvidia
+```

@@ -1,0 +1,159 @@
+---
+sidebar_position: 1
+---
+
+# Información de Gráficos
+
+Para obtener información de drivers gráficos y que es lo que esta activo tenemos varias formas de verlo:
+
+---
+
+**Ver GPUs detectadas:**
+
+```bash
+lspci | grep -E "VGA|3D|Display"
+```
+
+Salida:
+
+```txt
+01:00.0 VGA compatible controller: NVIDIA Corporation TU117BM [GeForce GTX 1650 Mobile Refresh] (rev a1)
+05:00.0 VGA compatible controller: Advanced Micro Devices, Inc. [AMD/ATI] Cezanne [Radeon Vega Series / Radeon Vega Mobile Series] (rev c6)
+```
+
+---
+
+**Ver renderers:**
+
+```bash
+glxinfo | grep "OpenGL renderer"
+```
+
+si `glxinfo` no aparece como comando, instalalo:
+
+```bash
+sudo dnf install mesa-demos
+```
+
+Salida:
+
+```json
+OpenGL renderer string: AMD Radeon Graphics (radeonsi, renoir, ACO, DRM 3.64, 6.19.14-300.fc44.x86_64)
+```
+
+---
+
+**Ver vulkan:**
+
+```bash
+vulkaninfo --summary
+```
+
+Si falta:
+
+```bash
+sudo dnf install vulkan-tools
+```
+
+Salida:
+
+```json
+WARNING: [Loader Message] Code 0 : terminator_CreateInstance: Received return code -9 from call to vkCreateInstance in ICD /usr/lib64/libvulkan_dzn.so. Skipping this driver.
+WARNING: [Loader Message] Code 0 : ICD for selected physical device does not export vkGetPhysicalDeviceDisplayPlanePropertiesKHR!
+WARNING: [Loader Message] Code 0 : ICD for selected physical device does not export vkGetPhysicalDeviceDisplayPropertiesKHR!
+==========
+VULKANINFO
+==========
+
+Vulkan Instance Version: 1.4.341
+
+
+Instance Extensions: count = 26
+-------------------------------
+VK_EXT_acquire_drm_display             : extension revision 1
+VK_EXT_acquire_xlib_display            : extension revision 1
+VK_EXT_debug_report                    : extension revision 10
+VK_EXT_debug_utils                     : extension revision 2
+VK_EXT_direct_mode_display             : extension revision 1
+VK_EXT_display_surface_counter         : extension revision 1
+VK_EXT_headless_surface                : extension revision 1
+VK_EXT_layer_settings                  : extension revision 2
+VK_EXT_surface_maintenance1            : extension revision 1
+VK_EXT_swapchain_colorspace            : extension revision 5
+VK_KHR_device_group_creation           : extension revision 1
+VK_KHR_display                         : extension revision 23
+VK_KHR_external_fence_capabilities     : extension revision 1
+VK_KHR_external_memory_capabilities    : extension revision 1
+VK_KHR_external_semaphore_capabilities : extension revision 1
+VK_KHR_get_display_properties2         : extension revision 1
+VK_KHR_get_physical_device_properties2 : extension revision 2
+VK_KHR_get_surface_capabilities2       : extension revision 1
+VK_KHR_portability_enumeration         : extension revision 1
+VK_KHR_surface                         : extension revision 25
+VK_KHR_surface_maintenance1            : extension revision 1
+VK_KHR_surface_protected_capabilities  : extension revision 1
+VK_KHR_wayland_surface                 : extension revision 6
+VK_KHR_xcb_surface                     : extension revision 6
+VK_KHR_xlib_surface                    : extension revision 6
+VK_LUNARG_direct_driver_loading        : extension revision 1
+
+Instance Layers: count = 1
+--------------------------
+VK_LAYER_MESA_device_select Linux device selection layer 1.4.303  version 1
+
+Devices:
+========
+GPU0:
+	apiVersion         = 1.4.335
+	driverVersion      = 26.0.5
+	vendorID           = 0x1002
+	deviceID           = 0x1638
+	deviceType         = PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU
+	deviceName         = AMD Radeon Graphics (RADV RENOIR)
+	driverID           = DRIVER_ID_MESA_RADV
+	driverName         = radv
+	driverInfo         = Mesa 26.0.5
+	conformanceVersion = 1.4.0.0
+	deviceUUID         = 00000000-0500-0000-0000-000000000000
+	driverUUID         = 414d442d-4d45-5341-2d44-525600000000
+GPU1:
+	apiVersion         = 1.4.335
+	driverVersion      = 26.0.5
+	vendorID           = 0x10de
+	deviceID           = 0x1fdd
+	deviceType         = PHYSICAL_DEVICE_TYPE_DISCRETE_GPU
+	deviceName         = NVIDIA GeForce GTX 1650 (NVK TU117)
+	driverID           = DRIVER_ID_MESA_NVK
+	driverName         = NVK
+	driverInfo         = Mesa 26.0.5
+	conformanceVersion = 1.4.3.0
+	deviceUUID         = 6701de10-dd1f-0000-0100-000100000000
+	driverUUID         = ab1f8be8-e0fa-02cc-7cfa-53abe16671eb
+GPU2:
+	apiVersion         = 1.4.335
+	driverVersion      = 26.0.5
+	vendorID           = 0x10005
+	deviceID           = 0x0000
+	deviceType         = PHYSICAL_DEVICE_TYPE_CPU
+	deviceName         = llvmpipe (LLVM 22.1.1, 256 bits)
+	driverID           = DRIVER_ID_MESA_LLVMPIPE
+	driverName         = llvmpipe
+	driverInfo         = Mesa 26.0.5 (LLVM 22.1.1)
+	conformanceVersion = 1.3.1.1
+	deviceUUID         = 6d657361-3236-2e30-2e35-000000000000
+	driverUUID         = 6c6c766d-7069-7065-5555-494400000000
+```
+
+---
+
+**Ver si nvidia está viva:**
+
+```bash
+nvidia-smi
+```
+
+**Ver módulos cargado:**
+
+```bash
+lsmod | grep -E "nvidia|amdgpu"
+```

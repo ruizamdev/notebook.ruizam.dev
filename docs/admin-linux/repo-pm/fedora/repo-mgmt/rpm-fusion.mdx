@@ -1,0 +1,47 @@
+---
+sidebar_position: 2
+---
+
+# RPM Fusion
+
+RPM Fusion es un repositorio comunitario que proporciona paquetes adicionales para Fedora y distros basadas en Red Hat que no estan incluidos en los repositorios oficiales por razones de licencias y patentes. Este repo cuenta con software fundamental para instalar códecs multimedia y drivers propietarios com los de NVIDIA.
+
+## Agregar el repo
+
+Para agregarlo debemos de hacer lo siguiente:
+
+```bash
+sudo dnf install \
+"https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm" \
+"https://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm"
+```
+
+Se pueden utilizar mirrors:
+
+```bash
+sudo dnf install \
+"https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm" \
+"https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm"
+```
+
+Este comando:
+
+```bash
+rpm -E %fedora
+```
+
+Sirve para agregar la version actual de fedora a la url de descarga automaticamente en vez de escribirla manual
+
+## Actualizar y verificar
+
+Actualizar cache de repos:
+
+```bash
+sudo dnf makecache
+```
+
+Verificar que ya estan agregados:
+
+```bash
+dnf repolist | grep rpmfusion
+```

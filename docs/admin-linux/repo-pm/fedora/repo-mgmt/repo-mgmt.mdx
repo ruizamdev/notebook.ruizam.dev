@@ -142,3 +142,25 @@ sudo dnf config-manager setopt fedora.enabled=0
 ```
 
 Nota: Obviamente el repo `fedora` es el repo oficial del sistema, por lo que no es recomendable deshabilitarlo.
+
+## Actualizar caché/metadata
+
+Después de habilitar o deshabilitar un repositorio, es recomendable actualizar la caché para que los cambios se reflejen correctamente. Esto se puede hacer con el siguiente comando:
+
+```bash
+sudo dnf makecache
+```
+
+## Ver archivos `.repo`
+
+Los repos viven normalemnte en el directorio `/etc/yum.repos.d/` con la extensión `.repo`, simplemente listamos el contenido de éste para ver los archivos:
+
+```bash
+ls /etc/yum.repos.d/
+```
+
+Si deseamos ver el contenido basta con abrirlo con cualquier editor de texto o para ver rápido el contenido con `cat`:
+
+```bash
+cat /etc/yum.repos.d/fedora.repo
+```
