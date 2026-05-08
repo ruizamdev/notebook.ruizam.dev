@@ -1,0 +1,150 @@
+---
+sidebar-position: 1
+---
+
+import TabItem from "@theme/TabItem";
+import Tabs from "@theme/Tabs";
+
+# Conexiones remotas
+
+Aquí veremos como conectarse vía remota a otros equipos mediante escritorio remoto y ssh
+
+## RDP
+
+### Instalación
+
+Para conectarse por escritorio remoto a equipos Windows utilizaremos el programa de FreeRDP el cual lo podremos instalar de las siguientes formas segun la distro:
+
+**Ubuntu**
+
+```bash
+sudo apt install -y xfreerdp3
+```
+
+**Fedora**
+
+```bash
+sudo dnf install -y freerdp
+```
+
+### Uso básico
+
+Ya instalado podemos conectarnos de la siguiente forma:
+
+> Para fines prácticos el comando para Ubuntu es `xfreerdp3` y para Fedora es `xfreerdp`, según tu distro usa uno u otro, para estos ejemplos se da por hecho el uso de fedora.
+
+```bash
+xfreerdp /u:user /v:host /p:password
+```
+
+Flags:
+
+- `/u`: Tu nombre de usuario
+- `/v`: El host al que te conectaras (Ej. 192.168.1.11, 187.125.31.22, server.ddns.net)
+- `/p`: La contraseña
+
+Como podrás intuir si eres perspicaz, colocar la contraseña directo en la línea de comandos no es nada apropiado y representa un riesgo para la seguridad, por lo que puedes prescindir de este flag y usar solo `/u` y `/v`, al dar enter el prompt te preguntará la contraseña. Más adelante te daré un tip para poder guardar la contraseña y no tener que escribirla en cada conexión.
+
+### Modos de Pantalla
+
+Ahora, si se ejecuta el programa de esta forma, sin ninguna opción extra, el programa se abrirá en una ventana estática, es decir, que no podrás redimensionar la pantalla. Aquí tenemos varias formas de trabajar, te daré una breve explicación de que flags y modos podemos utilizar, dependiendo de tu manera de trabajar podrás ajustarlo a tus necesidades.
+
+- :
+
+- :
+
+- :
+
+| Flag                  | Descripción 2                                                                                                                                                                                                                                                                                                                                                                     |
+| --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `/f`                  | Este flag permite mostrar el host remoto en pantalla completa, un detalle con este es si lo pasas sólo, no podrás salir de la pantalla completa hasta que salgas de la sesión en el host remoto.                                                                                                                                                                                  |
+| `/floatbar`           | Este flag te permite agregar una barra flotante como la que aparece en el Escritorio Remoto nativo de windows, puedes combinar este flag con `/f` para poder minimizar la pantalla completa.                                                                                                                                                                                      |
+| `/dynamic-resolution` | Esta opción es mi favorita, ya que te abre el host remoto en modo ventana pero con la particularidad de que la puedes redimensionar y al mismo tiempo se redimensiona el contenido. puedes maximizarla y el contenido se ajusta a la ventana. Aquí puedes utilizar la combinación de teclas `ctrl` + `alt` + `enter` para poder cambiar al modo de pantalla completa y viceversa. |
+
+Existen aún más opciones para los ajustes de pantalla, pero creo que estos son con los que podemos trabajar mejor.
+
+### Guardar contraseña
+
+Esta es mi parte favorita de éste pedazo de documentación, guardar la contraseña para reutilizarla en cada sesión, primero debemos instalar las herramientas que necesitamos.
+
+**Intalación de dependencias**
+
+- **secret-tool**: Éste paquete nos permite guardar las contraseñas de manera segura en linux, se guarda en el denominado **_keyring_**, en el cual las contraseñas se cifran. Instalación:
+
+**Ubuntu**
+
+```bash
+sudo apt install -y libsecret-tools
+```
+
+**Fedora**
+
+```bash
+sudo dnf install -y libsecret
+```
+
+- **seahorse** (opcional): Ésta app de Gnome permite gestionar el keyring de manera gráfica. Instalación:
+
+**Ubuntu**
+
+```bash
+sudo apt install -y seahorse
+```
+
+**Fedora**
+
+```bash
+sudo dnf install -y seahorse
+```
+
+**Guardar contraseñas**
+
+Para guardar las contraseñas debemos hacerlo de la siguiente manera:
+
+```bash
+secret-tool store --label="RDP Host" service rdp profile RDP-Host
+```
+
+Y para recuperarla:
+
+```bash
+secret-tool lookup service rdp profile RDP-Host
+```
+
+Ya que la tenemos guardada simplemente la usamos directo en la línea de comandos o desde un script.
+
+### Bonus: Agregar comando a sesión bash/zsh
+
+Uno que es huevón se busca maneras de escribir menos y automatizar las tareas (característica de un buen programador), agrega un alias/función a su archivo rc para ejecutar largos comandos de una manera más simple. Te comparto la manera en la que yo agrego funciones para automatizar el inicio de sesión con FreeRDP.
+
+Primero, abrimos nuestro fichero rc con nuestro editor de preferencia:
+
+```bash
+# Vim
+vim ~/.zshrc
+# si es bash
+vim ~/.bashrc
+# VS Code
+code ~/.zshrc
+# si es bash
+code ~/.bashrc
+```
+
+Y ésta es la función que agrego:
+
+```bash
+host-remoto() {
+  # Creamos variables para almacenar nuestra info: Usuario, Host remoto y contraseña
+  local user="user"
+  local host="host"
+  local passwd
+
+  # Aquí obtenemos nuestra contraseña del keyring con secret-tool
+  passwd="$(secret-tool lookup service rdp profile RDP-Host | tr -d '\n')"
+
+  # Verificamos que la contraseña exista
+  [[ -z "$passwd" ]] && { echo ""}
+  # Nos conectamos al host remoto
+  xfreerdp /u:"$user" /v:"$host" /p:"$passwd" /dynamic-resolution
+}
+```
