@@ -1,0 +1,71 @@
+---
+sidebar_position: 1
+---
+
+# Miscelaneos
+
+**Nota**: por cada configuración es necesario recargar la sesión actual si no se quiere cerrar y volver a abrir la terminal, puedes recargar con:
+
+```sh
+# para bash
+source ~/.bashrc
+# para zsh
+source ~/.zshrc
+```
+
+## Eza
+
+El comando `eza` es un reemplazo moderno y más colorido para `ls` el comando que nos ayuda a listar el contenido de un directorio, vamos a reemplazar los aliases existentes para `ls` con `eza` para seguir utilizando los mismos.
+
+```sh
+alias l='eza -lah'
+alias ll='eza -lh'
+alias ld='eza -1Dh'
+alias lld='eza -1Dah'
+```
+
+## Grc
+
+El comando `grc` nos ayuda a darle salida de colores a varios comandos del sistema, aquí no crearemos un alias, se confgura la ejecución de un fichero, la ruta de este fichero dependerá de la shell instalada y la distro linux. Para saber que fichero utilizar podemos ejecutar la siguiente sentencia según la distro:
+
+### Fedora/RHEL/CentOS
+
+```sh
+# bash o compatibles
+rpm -ql grc | grep sh
+# zsh o compatibles
+rpm -ql grc | grep zsh
+# fish o compatibles
+rpm -ql grc | grep fish
+```
+
+### Arch Linux
+
+```sh
+# bash o compatibles
+pacman -Ql grc | grep sh
+# zsh o compatibles
+pacman -Ql grc | grep zsh
+# fish o compatibles
+pacman -Ql grc | grep fish
+```
+
+### Debian/Ubuntu
+
+```sh
+# bash o compatibles
+dpkg -L grc | grep sh
+# zsh o compatibles
+dpkg -L grc | grep zsh
+# fish o compatibles
+dpkg -L grc | grep fish
+```
+
+Después de encontrar el fichero lo colocamos en el fichero de configuracion de la shell, este ejemplo es para zsh:
+
+```sh
+nvim ~/.zshrc
+# Dentro del fichero agregamos antes de los aliases de eza:
+GRC_ALIASES=true
+source /etc/grc.zsh
+```

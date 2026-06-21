@@ -1,0 +1,8 @@
+{
+  "label": "Mis aliases",
+  "position": 8,
+  "link": {
+    "type": "generated-index",
+    "description": "Mis propios aliases que uso para mejorar la terminal."
+  }
+}
