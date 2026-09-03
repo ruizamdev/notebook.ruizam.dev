@@ -1,0 +1,1967 @@
+---
+sidebar-position: 1
+---
+
+# 🌐 Chuletón de comandos para troubleshooting de redes
+
+Referencia rápida de comandos para **diagnóstico, inspección y configuración de redes** en Windows y Linux.
+
+---
+
+# 1. Información de interfaces
+
+## Windows
+
+### `ipconfig`
+
+Información básica de interfaces.
+
+```powershell
+ipconfig
+```
+
+Información completa:
+
+```powershell
+ipconfig /all
+```
+
+Muestra, entre otros:
+
+- IPv4 / IPv6
+- Máscara de subred
+- Gateway
+- Servidores DNS
+- DHCP habilitado
+- Servidor DHCP
+- Dirección MAC
+- Lease DHCP
+
+---
+
+### PowerShell
+
+```powershell
+Get-NetAdapter
+```
+
+Interfaces disponibles y estado.
+
+```powershell
+Get-NetIPConfiguration
+```
+
+Configuración IP resumida.
+
+```powershell
+Get-NetIPConfiguration -Detailed
+```
+
+Información detallada.
+
+```powershell
+Get-NetIPAddress
+```
+
+Direcciones IP configuradas.
+
+```powershell
+Get-NetIPInterface
+```
+
+Información lógica de las interfaces.
+
+---
+
+## Linux
+
+### `ip`
+
+Interfaces:
+
+```bash
+ip addr
+```
+
+Versión corta:
+
+```bash
+ip a
+```
+
+Solo IPv4:
+
+```bash
+ip -4 addr
+```
+
+Solo IPv6:
+
+```bash
+ip -6 addr
+```
+
+Estado de enlaces:
+
+```bash
+ip link
+```
+
+Información de una interfaz:
+
+```bash
+ip addr show eth0
+```
+
+---
+
+### NetworkManager
+
+```bash
+nmcli device
+```
+
+```bash
+nmcli device status
+```
+
+Información completa:
+
+```bash
+nmcli device show
+```
+
+Interfaz específica:
+
+```bash
+nmcli device show eth0
+```
+
+Conexiones configuradas:
+
+```bash
+nmcli connection show
+```
+
+Conexiones activas:
+
+```bash
+nmcli connection show --active
+```
+
+---
+
+# 2. Dirección MAC
+
+## Windows
+
+```powershell
+getmac
+```
+
+Más detalle:
+
+```powershell
+getmac /v
+```
+
+PowerShell:
+
+```powershell
+Get-NetAdapter
+```
+
+---
+
+## Linux
+
+```bash
+ip link
+```
+
+Interfaz específica:
+
+```bash
+ip link show eth0
+```
+
+También:
+
+```bash
+cat /sys/class/net/eth0/address
+```
+
+---
+
+# 3. Estado físico del enlace
+
+## Windows
+
+```powershell
+Get-NetAdapter
+```
+
+Detalles:
+
+```powershell
+Get-NetAdapter | Format-List *
+```
+
+Velocidad:
+
+```powershell
+Get-NetAdapter | Select Name, Status, LinkSpeed
+```
+
+---
+
+## Linux
+
+```bash
+ip link
+```
+
+Con `ethtool`:
+
+```bash
+ethtool eth0
+```
+
+Datos útiles:
+
+- Link detected
+- Speed
+- Duplex
+- Auto-negotiation
+
+Solo enlace:
+
+```bash
+ethtool eth0 | grep "Link detected"
+```
+
+Velocidad:
+
+```bash
+ethtool eth0 | grep Speed
+```
+
+Duplex:
+
+```bash
+ethtool eth0 | grep Duplex
+```
+
+---
+
+# 4. DHCP
+
+## Windows
+
+Liberar dirección:
+
+```powershell
+ipconfig /release
+```
+
+Renovar:
+
+```powershell
+ipconfig /renew
+```
+
+IPv6:
+
+```powershell
+ipconfig /release6
+ipconfig /renew6
+```
+
+Ver servidor DHCP:
+
+```powershell
+ipconfig /all
+```
+
+---
+
+## Linux
+
+Con NetworkManager:
+
+```bash
+nmcli device show
+```
+
+Renovar conexión:
+
+```bash
+nmcli connection down "CONEXION"
+nmcli connection up "CONEXION"
+```
+
+Con `dhclient` cuando esté disponible:
+
+```bash
+sudo dhclient -r eth0
+sudo dhclient eth0
+```
+
+Ver leases:
+
+```bash
+cat /var/lib/NetworkManager/*.lease
+```
+
+La ubicación puede variar según distro/cliente DHCP.
+
+---
+
+# 5. Configuración IP manual
+
+## Windows
+
+### PowerShell
+
+```powershell
+New-NetIPAddress \
+  -InterfaceAlias "Ethernet" \
+  -IPAddress 192.168.1.100 \
+  -PrefixLength 24 \
+  -DefaultGateway 192.168.1.1
+```
+
+DNS:
+
+```powershell
+Set-DnsClientServerAddress \
+  -InterfaceAlias "Ethernet" \
+  -ServerAddresses ("1.1.1.1","8.8.8.8")
+```
+
+Volver DNS a automático:
+
+```powershell
+Set-DnsClientServerAddress \
+  -InterfaceAlias "Ethernet" \
+  -ResetServerAddresses
+```
+
+---
+
+### `netsh`
+
+```cmd
+netsh interface ipv4 show interfaces
+```
+
+IP estática:
+
+```cmd
+netsh interface ipv4 set address name="Ethernet" static 192.168.1.100 255.255.255.0 192.168.1.1
+```
+
+DHCP:
+
+```cmd
+netsh interface ipv4 set address name="Ethernet" source=dhcp
+```
+
+DNS:
+
+```cmd
+netsh interface ipv4 set dns name="Ethernet" static 1.1.1.1
+```
+
+---
+
+## Linux
+
+### IP temporal
+
+```bash
+sudo ip addr add 192.168.1.100/24 dev eth0
+```
+
+Eliminar:
+
+```bash
+sudo ip addr del 192.168.1.100/24 dev eth0
+```
+
+Levantar interfaz:
+
+```bash
+sudo ip link set eth0 up
+```
+
+Bajar:
+
+```bash
+sudo ip link set eth0 down
+```
+
+Gateway temporal:
+
+```bash
+sudo ip route add default via 192.168.1.1
+```
+
+---
+
+### NetworkManager
+
+IP estática:
+
+```bash
+nmcli connection modify "CONEXION" \
+ipv4.method manual \
+ipv4.addresses 192.168.1.100/24 \
+ipv4.gateway 192.168.1.1 \
+ipv4.dns "1.1.1.1 8.8.8.8"
+```
+
+Aplicar:
+
+```bash
+nmcli connection up "CONEXION"
+```
+
+Volver a DHCP:
+
+```bash
+nmcli connection modify "CONEXION" ipv4.method auto
+```
+
+---
+
+# 6. Tabla de enrutamiento
+
+## Windows
+
+```powershell
+route print
+```
+
+PowerShell:
+
+```powershell
+Get-NetRoute
+```
+
+Solo IPv4:
+
+```powershell
+Get-NetRoute -AddressFamily IPv4
+```
+
+Ruta por defecto:
+
+```powershell
+Get-NetRoute -DestinationPrefix "0.0.0.0/0"
+```
+
+Agregar ruta:
+
+```cmd
+route add 10.10.0.0 mask 255.255.0.0 192.168.1.1
+```
+
+Ruta persistente:
+
+```cmd
+route -p add 10.10.0.0 mask 255.255.0.0 192.168.1.1
+```
+
+Eliminar:
+
+```cmd
+route delete 10.10.0.0
+```
+
+---
+
+## Linux
+
+```bash
+ip route
+```
+
+Versión corta:
+
+```bash
+ip r
+```
+
+Ruta por defecto:
+
+```bash
+ip route show default
+```
+
+Consultar qué ruta usaría hacia una IP:
+
+```bash
+ip route get 8.8.8.8
+```
+
+Agregar ruta:
+
+```bash
+sudo ip route add 10.10.0.0/16 via 192.168.1.1
+```
+
+Eliminar:
+
+```bash
+sudo ip route del 10.10.0.0/16
+```
+
+Agregar default gateway:
+
+```bash
+sudo ip route add default via 192.168.1.1
+```
+
+---
+
+# 7. Conectividad — Ping
+
+## Windows
+
+```cmd
+ping 192.168.1.1
+```
+
+Continuo:
+
+```cmd
+ping -t 192.168.1.1
+```
+
+Cantidad determinada:
+
+```cmd
+ping -n 20 192.168.1.1
+```
+
+Sin resolución DNS:
+
+```cmd
+ping -a 192.168.1.1
+```
+
+Forzar IPv4:
+
+```cmd
+ping -4 google.com
+```
+
+Forzar IPv6:
+
+```cmd
+ping -6 google.com
+```
+
+---
+
+## Linux
+
+```bash
+ping 192.168.1.1
+```
+
+Cantidad:
+
+```bash
+ping -c 10 192.168.1.1
+```
+
+Intervalo:
+
+```bash
+ping -i 0.5 192.168.1.1
+```
+
+IPv4:
+
+```bash
+ping -4 google.com
+```
+
+IPv6:
+
+```bash
+ping -6 google.com
+```
+
+---
+
+# 8. Traceroute
+
+## Windows
+
+```cmd
+tracert google.com
+```
+
+Sin resolución DNS:
+
+```cmd
+tracert -d google.com
+```
+
+IPv4:
+
+```cmd
+tracert -4 google.com
+```
+
+---
+
+## Linux
+
+```bash
+traceroute google.com
+```
+
+Sin DNS:
+
+```bash
+traceroute -n google.com
+```
+
+Usando ICMP:
+
+```bash
+traceroute -I google.com
+```
+
+Alternativa:
+
+```bash
+tracepath google.com
+```
+
+---
+
+# 9. MTR — pérdida y latencia por salto
+
+Especialmente útil en Linux.
+
+```bash
+mtr google.com
+```
+
+Reporte:
+
+```bash
+mtr -r google.com
+```
+
+100 paquetes:
+
+```bash
+mtr -r -c 100 google.com
+```
+
+Sin DNS:
+
+```bash
+mtr -n google.com
+```
+
+---
+
+# 10. DNS
+
+## Windows
+
+```cmd
+nslookup google.com
+```
+
+Consultar servidor específico:
+
+```cmd
+nslookup google.com 1.1.1.1
+```
+
+PowerShell:
+
+```powershell
+Resolve-DnsName google.com
+```
+
+Tipo específico:
+
+```powershell
+Resolve-DnsName google.com -Type A
+```
+
+```powershell
+Resolve-DnsName google.com -Type MX
+```
+
+```powershell
+Resolve-DnsName google.com -Type TXT
+```
+
+Limpiar caché:
+
+```cmd
+ipconfig /flushdns
+```
+
+Ver caché:
+
+```cmd
+ipconfig /displaydns
+```
+
+---
+
+## Linux
+
+### `dig`
+
+```bash
+dig google.com
+```
+
+Solo resultado:
+
+```bash
+dig +short google.com
+```
+
+Servidor específico:
+
+```bash
+dig @1.1.1.1 google.com
+```
+
+Registros:
+
+```bash
+dig google.com A
+dig google.com AAAA
+dig google.com MX
+dig google.com TXT
+dig google.com NS
+```
+
+Resolución inversa:
+
+```bash
+dig -x 8.8.8.8
+```
+
+Traza DNS:
+
+```bash
+dig +trace google.com
+```
+
+---
+
+### `resolvectl`
+
+```bash
+resolvectl status
+```
+
+Consulta:
+
+```bash
+resolvectl query google.com
+```
+
+Vaciar caché:
+
+```bash
+sudo resolvectl flush-caches
+```
+
+---
+
+# 11. ARP / vecinos
+
+## Windows
+
+```cmd
+arp -a
+```
+
+Eliminar caché ARP:
+
+```cmd
+arp -d *
+```
+
+PowerShell:
+
+```powershell
+Get-NetNeighbor
+```
+
+---
+
+## Linux
+
+```bash
+ip neigh
+```
+
+Interfaz específica:
+
+```bash
+ip neigh show dev eth0
+```
+
+Eliminar entrada:
+
+```bash
+sudo ip neigh del 192.168.1.20 dev eth0
+```
+
+Vaciar tabla:
+
+```bash
+sudo ip neigh flush all
+```
+
+---
+
+# 12. Puertos y conexiones
+
+## Windows
+
+```cmd
+netstat -ano
+```
+
+Solo conexiones activas:
+
+```cmd
+netstat -n
+```
+
+Puertos escuchando:
+
+```cmd
+netstat -ano | findstr LISTENING
+```
+
+Buscar puerto:
+
+```cmd
+netstat -ano | findstr :443
+```
+
+Identificar proceso:
+
+```cmd
+tasklist /FI "PID eq 1234"
+```
+
+PowerShell:
+
+```powershell
+Get-NetTCPConnection
+```
+
+Puerto específico:
+
+```powershell
+Get-NetTCPConnection -LocalPort 443
+```
+
+---
+
+## Linux
+
+### `ss`
+
+Todo:
+
+```bash
+ss -a
+```
+
+TCP:
+
+```bash
+ss -t
+```
+
+UDP:
+
+```bash
+ss -u
+```
+
+Listening:
+
+```bash
+ss -l
+```
+
+TCP + listening + procesos + numérico:
+
+```bash
+sudo ss -tulpn
+```
+
+Conexiones TCP:
+
+```bash
+ss -tan
+```
+
+Puerto:
+
+```bash
+ss -tulpn | grep :443
+```
+
+---
+
+### `lsof`
+
+```bash
+sudo lsof -i
+```
+
+Puerto:
+
+```bash
+sudo lsof -i :443
+```
+
+TCP:
+
+```bash
+sudo lsof -iTCP
+```
+
+---
+
+# 13. Probar puertos TCP
+
+## Windows
+
+```powershell
+Test-NetConnection google.com -Port 443
+```
+
+Alias:
+
+```powershell
+tnc google.com -Port 443
+```
+
+Más información:
+
+```powershell
+Test-NetConnection google.com -Port 443 -InformationLevel Detailed
+```
+
+---
+
+## Linux
+
+Netcat:
+
+```bash
+nc -vz google.com 443
+```
+
+Rango:
+
+```bash
+nc -vz 192.168.1.10 20-25
+```
+
+También:
+
+```bash
+curl -v https://google.com
+```
+
+---
+
+# 14. HTTP / HTTPS
+
+## Windows / Linux
+
+Headers:
+
+```bash
+curl -I https://example.com
+```
+
+Verbose:
+
+```bash
+curl -v https://example.com
+```
+
+Seguir redirects:
+
+```bash
+curl -L https://example.com
+```
+
+Forzar IPv4:
+
+```bash
+curl -4 https://example.com
+```
+
+Forzar IPv6:
+
+```bash
+curl -6 https://example.com
+```
+
+Tiempo de conexión:
+
+```bash
+curl -w "%{time_connect}\n" -o /dev/null -s https://example.com
+```
+
+DNS + conexión + TLS + total:
+
+```bash
+curl -w "DNS: %{time_namelookup}
+Connect: %{time_connect}
+TLS: %{time_appconnect}
+Total: %{time_total}
+" -o /dev/null -s https://example.com
+```
+
+---
+
+# 15. Escaneo con Nmap
+
+Disponible para Windows y Linux.
+
+Descubrir hosts:
+
+```bash
+nmap -sn 192.168.1.0/24
+```
+
+Puerto:
+
+```bash
+nmap -p 80 192.168.1.10
+```
+
+Varios:
+
+```bash
+nmap -p 22,80,443 192.168.1.10
+```
+
+Rango:
+
+```bash
+nmap -p 1-1000 192.168.1.10
+```
+
+Todos los puertos TCP:
+
+```bash
+nmap -p- 192.168.1.10
+```
+
+Detección de servicios:
+
+```bash
+nmap -sV 192.168.1.10
+```
+
+Detección de SO:
+
+```bash
+sudo nmap -O 192.168.1.10
+```
+
+Detección amplia:
+
+```bash
+sudo nmap -A 192.168.1.10
+```
+
+---
+
+# 16. Captura de paquetes
+
+## Windows
+
+### `pktmon`
+
+Interfaces/componentes:
+
+```cmd
+pktmon list
+```
+
+Iniciar:
+
+```cmd
+pktmon start --etw
+```
+
+Detener:
+
+```cmd
+pktmon stop
+```
+
+Convertir ETL:
+
+```cmd
+pktmon etl2txt PktMon.etl
+```
+
+---
+
+## Linux
+
+### `tcpdump`
+
+Interfaces:
+
+```bash
+tcpdump -D
+```
+
+Captura:
+
+```bash
+sudo tcpdump -i eth0
+```
+
+Sin resolver nombres:
+
+```bash
+sudo tcpdump -ni eth0
+```
+
+Host:
+
+```bash
+sudo tcpdump -ni eth0 host 192.168.1.10
+```
+
+Puerto:
+
+```bash
+sudo tcpdump -ni eth0 port 443
+```
+
+TCP:
+
+```bash
+sudo tcpdump -ni eth0 tcp
+```
+
+UDP:
+
+```bash
+sudo tcpdump -ni eth0 udp
+```
+
+ICMP:
+
+```bash
+sudo tcpdump -ni eth0 icmp
+```
+
+DNS:
+
+```bash
+sudo tcpdump -ni eth0 port 53
+```
+
+ARP:
+
+```bash
+sudo tcpdump -ni eth0 arp
+```
+
+Guardar PCAP:
+
+```bash
+sudo tcpdump -ni eth0 -w captura.pcap
+```
+
+Leer PCAP:
+
+```bash
+tcpdump -r captura.pcap
+```
+
+---
+
+# 17. Estadísticas de interfaces
+
+## Windows
+
+```powershell
+Get-NetAdapterStatistics
+```
+
+---
+
+## Linux
+
+```bash
+ip -s link
+```
+
+Interfaz:
+
+```bash
+ip -s link show eth0
+```
+
+Información más detallada:
+
+```bash
+ethtool -S eth0
+```
+
+Útil para detectar:
+
+- RX errors
+- TX errors
+- dropped packets
+- CRC errors
+- overruns
+
+---
+
+# 18. Wi-Fi
+
+## Windows
+
+Interfaces:
+
+```cmd
+netsh wlan show interfaces
+```
+
+Redes cercanas:
+
+```cmd
+netsh wlan show networks
+```
+
+Con detalles:
+
+```cmd
+netsh wlan show networks mode=bssid
+```
+
+Drivers:
+
+```cmd
+netsh wlan show drivers
+```
+
+Perfiles:
+
+```cmd
+netsh wlan show profiles
+```
+
+Información Wi-Fi:
+
+```powershell
+Get-NetAdapter -Name "Wi-Fi"
+```
+
+---
+
+## Linux
+
+Interfaces:
+
+```bash
+iw dev
+```
+
+Información:
+
+```bash
+iw dev wlan0 info
+```
+
+Link actual:
+
+```bash
+iw dev wlan0 link
+```
+
+Escaneo:
+
+```bash
+sudo iw dev wlan0 scan
+```
+
+Con NetworkManager:
+
+```bash
+nmcli device wifi list
+```
+
+Reescanear:
+
+```bash
+nmcli device wifi rescan
+```
+
+---
+
+# 19. Firewall
+
+## Windows
+
+Estado:
+
+```cmd
+netsh advfirewall show allprofiles
+```
+
+PowerShell:
+
+```powershell
+Get-NetFirewallProfile
+```
+
+Reglas:
+
+```powershell
+Get-NetFirewallRule
+```
+
+Reglas activas:
+
+```powershell
+Get-NetFirewallRule -Enabled True
+```
+
+---
+
+## Linux
+
+### nftables
+
+```bash
+sudo nft list ruleset
+```
+
+### iptables
+
+```bash
+sudo iptables -L -n -v
+```
+
+NAT:
+
+```bash
+sudo iptables -t nat -L -n -v
+```
+
+### UFW
+
+```bash
+sudo ufw status
+```
+
+Detalle:
+
+```bash
+sudo ufw status verbose
+```
+
+---
+
+# 20. Proxy
+
+## Windows
+
+```cmd
+netsh winhttp show proxy
+```
+
+Reset:
+
+```cmd
+netsh winhttp reset proxy
+```
+
+Variables:
+
+```powershell
+Get-ChildItem Env: | Where-Object Name -Match 'proxy'
+```
+
+---
+
+## Linux
+
+```bash
+env | grep -i proxy
+```
+
+```bash
+echo $HTTP_PROXY
+echo $HTTPS_PROXY
+echo $NO_PROXY
+```
+
+---
+
+# 21. Tabla de nombres / hosts
+
+## Windows
+
+```text
+C:\Windows\System32\drivers\etc\hosts
+```
+
+Ver:
+
+```cmd
+type C:\Windows\System32\drivers\etc\hosts
+```
+
+---
+
+## Linux
+
+```text
+/etc/hosts
+```
+
+Ver:
+
+```bash
+cat /etc/hosts
+```
+
+Resolución según NSS:
+
+```bash
+getent hosts google.com
+```
+
+---
+
+# 22. Información de red del sistema
+
+## Windows
+
+```cmd
+hostname
+```
+
+```cmd
+ipconfig /all
+```
+
+```cmd
+netstat -r
+```
+
+```powershell
+Get-NetAdapter
+Get-NetIPAddress
+Get-NetRoute
+Get-DnsClientServerAddress
+```
+
+---
+
+## Linux
+
+```bash
+hostname
+```
+
+```bash
+hostname -I
+```
+
+```bash
+ip a
+```
+
+```bash
+ip r
+```
+
+```bash
+ip neigh
+```
+
+```bash
+resolvectl status
+```
+
+---
+
+# 23. Reiniciar interfaz
+
+## Windows
+
+PowerShell:
+
+```powershell
+Disable-NetAdapter -Name "Ethernet"
+Enable-NetAdapter -Name "Ethernet"
+```
+
+Sin confirmación:
+
+```powershell
+Disable-NetAdapter -Name "Ethernet" -Confirm:$false
+Enable-NetAdapter -Name "Ethernet"
+```
+
+---
+
+## Linux
+
+```bash
+sudo ip link set eth0 down
+sudo ip link set eth0 up
+```
+
+NetworkManager:
+
+```bash
+nmcli device disconnect eth0
+nmcli device connect eth0
+```
+
+---
+
+# 24. NetworkManager — Linux
+
+Estado:
+
+```bash
+nmcli general status
+```
+
+Dispositivos:
+
+```bash
+nmcli device status
+```
+
+Conexiones:
+
+```bash
+nmcli connection show
+```
+
+Activas:
+
+```bash
+nmcli connection show --active
+```
+
+Detalle:
+
+```bash
+nmcli connection show "CONEXION"
+```
+
+Levantar:
+
+```bash
+nmcli connection up "CONEXION"
+```
+
+Bajar:
+
+```bash
+nmcli connection down "CONEXION"
+```
+
+Reiniciar NetworkManager:
+
+```bash
+sudo systemctl restart NetworkManager
+```
+
+Logs:
+
+```bash
+journalctl -u NetworkManager
+```
+
+Últimos eventos:
+
+```bash
+journalctl -u NetworkManager -n 100
+```
+
+En vivo:
+
+```bash
+journalctl -fu NetworkManager
+```
+
+---
+
+# 25. Rendimiento — iPerf3
+
+Servidor:
+
+```bash
+iperf3 -s
+```
+
+Cliente:
+
+```bash
+iperf3 -c 192.168.1.10
+```
+
+Prueba inversa:
+
+```bash
+iperf3 -c 192.168.1.10 -R
+```
+
+30 segundos:
+
+```bash
+iperf3 -c 192.168.1.10 -t 30
+```
+
+Varias conexiones:
+
+```bash
+iperf3 -c 192.168.1.10 -P 4
+```
+
+UDP:
+
+```bash
+iperf3 -c 192.168.1.10 -u
+```
+
+UDP a ancho de banda determinado:
+
+```bash
+iperf3 -c 192.168.1.10 -u -b 100M
+```
+
+---
+
+# 26. MTU
+
+## Windows
+
+```cmd
+netsh interface ipv4 show subinterfaces
+```
+
+Probar fragmentación:
+
+```cmd
+ping 8.8.8.8 -f -l 1472
+```
+
+Configurar:
+
+```cmd
+netsh interface ipv4 set subinterface "Ethernet" mtu=1500 store=persistent
+```
+
+---
+
+## Linux
+
+Ver:
+
+```bash
+ip link
+```
+
+Cambiar:
+
+```bash
+sudo ip link set dev eth0 mtu 1500
+```
+
+Probar:
+
+```bash
+ping -M do -s 1472 8.8.8.8
+```
+
+---
+
+# 27. IPv6
+
+## Windows
+
+```cmd
+ipconfig
+```
+
+```cmd
+ping -6 google.com
+```
+
+```cmd
+tracert -6 google.com
+```
+
+PowerShell:
+
+```powershell
+Get-NetIPAddress -AddressFamily IPv6
+```
+
+Rutas:
+
+```powershell
+Get-NetRoute -AddressFamily IPv6
+```
+
+---
+
+## Linux
+
+```bash
+ip -6 addr
+```
+
+```bash
+ip -6 route
+```
+
+```bash
+ping -6 google.com
+```
+
+```bash
+traceroute -6 google.com
+```
+
+---
+
+# 28. Procesos que usan la red
+
+## Windows
+
+```cmd
+netstat -ano
+```
+
+Luego:
+
+```cmd
+tasklist /FI "PID eq 1234"
+```
+
+PowerShell:
+
+```powershell
+Get-NetTCPConnection |
+Select LocalAddress,LocalPort,RemoteAddress,RemotePort,State,OwningProcess
+```
+
+---
+
+## Linux
+
+```bash
+sudo ss -tulpn
+```
+
+```bash
+sudo lsof -i
+```
+
+PID específico:
+
+```bash
+sudo lsof -p 1234 -i
+```
+
+---
+
+# 29. Comandos rápidos de emergencia
+
+## Windows
+
+```cmd
+ipconfig /all
+ping 127.0.0.1
+ping <gateway>
+ping 8.8.8.8
+ping google.com
+tracert -d 8.8.8.8
+nslookup google.com
+arp -a
+route print
+netstat -ano
+```
+
+PowerShell:
+
+```powershell
+Get-NetAdapter
+Get-NetIPConfiguration
+Get-NetRoute
+Get-NetNeighbor
+Get-NetTCPConnection
+Test-NetConnection 8.8.8.8
+Test-NetConnection google.com -Port 443
+```
+
+---
+
+## Linux
+
+```bash
+ip a
+ip link
+ip r
+ip neigh
+resolvectl status
+ping -c 4 127.0.0.1
+ping -c 4 <gateway>
+ping -c 4 8.8.8.8
+ping -c 4 google.com
+ip route get 8.8.8.8
+ss -tulpn
+dig google.com
+curl -4 -I https://google.com
+```
+
+---
+
+# 30. Machete ultra-rápido
+
+| Quiero saber...          | Windows                    | Linux                     |
+| ------------------------ | -------------------------- | ------------------------- |
+| Mi IP                    | `ipconfig`                 | `ip a`                    |
+| Toda mi configuración    | `ipconfig /all`            | `nmcli dev show`          |
+| Interfaces               | `Get-NetAdapter`           | `ip link`                 |
+| MAC                      | `getmac`                   | `ip link`                 |
+| Gateway                  | `ipconfig`                 | `ip route`                |
+| Rutas                    | `route print`              | `ip route`                |
+| Ruta usada hacia X       | `tracert X`                | `ip route get X`          |
+| Vecinos / ARP            | `arp -a`                   | `ip neigh`                |
+| DNS                      | `nslookup`                 | `dig`                     |
+| DNS configurado          | `ipconfig /all`            | `resolvectl status`       |
+| Limpiar DNS              | `ipconfig /flushdns`       | `resolvectl flush-caches` |
+| Conectividad             | `ping`                     | `ping`                    |
+| Saltos                   | `tracert`                  | `traceroute`              |
+| Pérdida por salto        | `pathping`                 | `mtr`                     |
+| Puertos abiertos locales | `netstat -ano`             | `ss -tulpn`               |
+| Probar TCP remoto        | `Test-NetConnection`       | `nc -vz`                  |
+| HTTP/HTTPS               | `curl`                     | `curl`                    |
+| Hosts de una LAN         | `nmap -sn`                 | `nmap -sn`                |
+| Capturar tráfico         | `pktmon`                   | `tcpdump`                 |
+| Estado Ethernet          | `Get-NetAdapter`           | `ethtool`                 |
+| Wi-Fi                    | `netsh wlan`               | `iw` / `nmcli`            |
+| Firewall                 | `Get-NetFirewallRule`      | `nft`                     |
+| Rendimiento LAN          | `iperf3`                   | `iperf3`                  |
+| Errores interfaz         | `Get-NetAdapterStatistics` | `ip -s link`              |
+| MTU                      | `netsh interface ipv4`     | `ip link`                 |
+| Logs de red              | Event Viewer               | `journalctl`              |
+
+---
+
+# 🧰 Kit mínimo que conviene tener instalado
+
+## Windows
+
+- PowerShell
+- `curl`
+- Nmap
+- Wireshark
+- iPerf3
+
+## Linux
+
+- `iproute2`
+- `ethtool`
+- `bind` / `bind-utils` / `dnsutils`
+- `traceroute`
+- `mtr`
+- `nmap`
+- `tcpdump`
+- `iperf3`
+- `netcat`
+- `lsof`
+- `iw`
+- NetworkManager / `nmcli`
+- Wireshark
+
+---
+
+# ⚡ Comandos Linux que vale la pena memorizar
+
+```bash
+ip a
+ip link
+ip r
+ip route get <IP>
+ip neigh
+ip -s link
+ss -tulpn
+ethtool <INTERFAZ>
+dig <DOMINIO>
+ping <HOST>
+traceroute <HOST>
+mtr <HOST>
+nc -vz <HOST> <PUERTO>
+curl -v <URL>
+tcpdump -ni <INTERFAZ>
+nmap -sn <RED/CIDR>
+nmcli device
+resolvectl status
+```
+
+# ⚡ Comandos Windows que vale la pena memorizar
+
+```powershell
+ipconfig /all
+Get-NetAdapter
+Get-NetIPConfiguration
+Get-NetIPAddress
+Get-NetRoute
+Get-NetNeighbor
+Get-NetTCPConnection
+Get-NetAdapterStatistics
+ping
+tracert
+pathping
+arp -a
+route print
+nslookup
+Resolve-DnsName
+Test-NetConnection
+netstat -ano
+netsh wlan show interfaces
+netsh wlan show networks mode=bssid
+```
+
+---
+
+> **Idea clave:** este chuletón no pretende decir _qué hacer en qué orden_. Es una caja de herramientas: sabes qué quieres inspeccionar o modificar y aquí buscas con qué comando meterle mano sin andar peleándote con Google a media instalación.
