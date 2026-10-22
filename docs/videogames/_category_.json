@@ -1,0 +1,8 @@
+{
+  "label": "Videojuegos",
+  "position": 4,
+  "link": {
+    "type": "generated-index",
+    "description": "Configuración de emuladores, proximamente desarrollo de videojuegos y todo lo relacionado a la industria de los videojuegos"
+  }
+}

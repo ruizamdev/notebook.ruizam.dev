@@ -1,0 +1,109 @@
+---
+sidebar_position: 1
+---
+
+# RetroArch en CachyOS — Guía de instalación y configuración
+
+**Plataforma:** Linux / CachyOS  
+**Instalación:** RetroArch mediante Steam  
+**Hardware:** Lenovo Legion 5 — AMD Radeon integrada + NVIDIA GTX 1650  
+**Cores:**
+
+- Dolphin
+- LRPS2
+- Mupen64Plus-Next
+
+---
+
+## 1. Introducción
+
+La versión de RetroArch distribuida mediante Steam normalmente no incluye el actualizador en línea de cores.
+
+Podemos instalar manualmente los emuladores descargando sus bibliotecas `.so` y archivos de información `.info`, sin perder la integración con Steam.
+
+### Directorios principales
+
+La ruta predeterminada de RetroArch en Steam nativo es:
+
+```bash
+~/.local/share/Steam/steamapps/common/RetroArch/
+```
+
+Para facilitar los comandos, podemos almacenar la ruta en una variable de entorno en bash:
+
+```bash
+RA="$HOME/.local/share/Steam/steamapps/common/RetroArch"
+```
+
+Pero si se utiliza la shell por defecto en CachyOS, fish, la forma de setear variables es diferente que en bash y el fichero .bashrc. En bash solo se escribe el nombre de la variable seguido de signo igual (=) y su contenido. En fish se utiliza el comando set:
+
+```bash
+set -gx VAR $HOME/.local/share/Steam/steamapps/common/RetroArch
+```
+
+Y el fichero de configuración de fish se encuentra en la siguiente ruta:
+
+```bash
+~/.config/fish/config.fish
+```
+
+Solo se agrega la declaración de la variable dentro para tenerla disponible en la shell, los flags `-g` y `-x` son para otorgarle un scope global y capacidad de exportar la variable, respectivamente.
+
+Estructura habitual:
+
+```text
+RetroArch/
+├── cores/
+│   ├── dolphin_libretro.info
+│   ├── dolphin_libretro.so
+│   ├── pcsx2_libretro.info
+│   ├── pcsx2_libretro.so
+│   ├── mupen64plus_next_libretro.info
+│   └── mupen64plus_next_libretro.so
+└── system/
+    ├── dolphin-emu/
+    │   └── Sys/
+    └── pcsx2/
+        └── bios/
+```
+
+**Importante:** las rutas reales pueden ser diferentes, especialmente si Steam utiliza otra biblioteca.
+
+Comprobarlas en RetroArch:
+
+`Settings → Directory`
+
+Configurar `Cores` y `Core Info` para que ambos apunten a `$RA/cores`: los archivos `.so` y `.info` van juntos en esa carpeta. Revisar también `System/BIOS`.
+
+---
+
+## 2. Dependencias
+
+Instalar herramientas necesarias:
+
+```bash
+sudo pacman -S --needed curl unzip git
+```
+
+### Repositorio oficial de cores
+
+**Núcleos:**
+https://buildbot.libretro.com/nightly/linux/x86_64/latest/
+
+**Ficheros info:**
+https://raw.githubusercontent.com/libretro/libretro-core-info/master
+
+Los archivos disponibles pueden cambiar con el tiempo. Verificar su existencia si alguna descarga devuelve un error 404.
+
+---
+
+## 3. Lista de Núcleos
+
+### PlayStation
+
+- [Playstation 2](#)
+
+### Nintendo
+
+- [Nintendo64](#)
+- [GameCube/Wii](#)
