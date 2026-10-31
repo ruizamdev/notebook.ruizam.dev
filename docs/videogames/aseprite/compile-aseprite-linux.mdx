@@ -1,0 +1,279 @@
+# Compilación de Aseprite en CachyOS Linux
+
+## 1. Requisitos
+
+**Sistema operativo:** CachyOS (Arch Linux)  
+**Arquitectura:** x86_64  
+**Compilador:** GCC o Clang  
+**Sistema de compilación:** CMake + Ninja  
+**Backend gráfico:** Skia
+
+## 2. Instalar dependencias
+
+Actualizar el sistema:
+
+```bash
+sudo pacman -Syu
+```
+
+Instalar herramientas y bibliotecas:
+
+```bash
+sudo pacman -S --needed \
+  base-devel \
+  git \
+  cmake \
+  ninja \
+  clang \
+  python \
+  curl \
+  unzip \
+  libx11 \
+  libxcursor \
+  libxi \
+  libxrandr \
+  mesa \
+  fontconfig \
+  freetype2 \
+  harfbuzz
+```
+
+Verificar las herramientas:
+
+```bash
+clang++ --version
+cmake --version
+ninja --version
+git --version
+```
+
+## 3. Descargar el código fuente
+
+Crear un directorio de trabajo:
+
+```bash
+mkdir -p ~/Development
+cd ~/Development
+```
+
+Clonar Aseprite con sus submódulos:
+
+```bash
+git clone --recursive \
+  --branch v1.3.18.6 \
+  https://github.com/aseprite/aseprite.git
+
+cd aseprite
+```
+
+Verificar el repositorio:
+
+```bash
+git describe --tags --always
+git submodule status
+```
+
+Si faltan submódulos:
+
+```bash
+git submodule update --init --recursive
+```
+
+## 4. Preparar Skia
+
+Aseprite utiliza una versión específica de Skia para su backend gráfico.
+
+El repositorio oficial proporciona información sobre las versiones y compilaciones compatibles:
+
+https://github.com/aseprite/skia
+
+Consultar también las instrucciones de la versión seleccionada de Aseprite:
+
+https://github.com/aseprite/aseprite/blob/main/INSTALL.md
+
+Crear el directorio de dependencias:
+
+```bash
+mkdir -p ~/Development/deps
+```
+
+Descargar y extraer la versión de Skia para Linux x64 indicada por las instrucciones oficiales.
+
+La estructura esperada para los siguientes comandos es:
+
+```text
+~/Development/
+├── aseprite/
+└── deps/
+    └── skia/
+        ├── include/
+        └── out/
+            └── Release-x64/
+                └── libskia.a
+```
+
+> **Importante:** no utilizar arbitrariamente la última versión de Skia. Debe ser compatible con la versión de Aseprite que vamos a compilar.
+
+## 5. Configurar CMake
+
+Crear el directorio de compilación:
+
+```bash
+cd ~/Development/aseprite
+mkdir -p build
+cd build
+```
+
+Configurar las rutas:
+
+```bash
+export SKIA_DIR="$HOME/Development/deps/skia"
+export SKIA_LIBRARY_DIR="$SKIA_DIR/out/Release-x64"
+```
+
+Generar la configuración de compilación:
+
+```bash
+cmake \
+  -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+  -DCMAKE_C_COMPILER=clang \
+  -DCMAKE_CXX_COMPILER=clang++ \
+  -DLAF_BACKEND=skia \
+  -DSKIA_DIR="$SKIA_DIR" \
+  -DSKIA_LIBRARY_DIR="$SKIA_LIBRARY_DIR" \
+  -DSKIA_LIBRARY="$SKIA_LIBRARY_DIR/libskia.a" \
+  -G Ninja \
+  ..
+```
+
+Si CMake finaliza correctamente, generará los archivos necesarios para Ninja.
+
+## 6. Compilar Aseprite
+
+Desde el directorio `build`:
+
+```bash
+ninja aseprite
+```
+
+También se puede utilizar:
+
+```bash
+cmake --build . --target aseprite --parallel 4
+```
+
+El valor `4` controla el número de trabajos simultáneos. Puede ajustarse según la memoria y los núcleos disponibles.
+
+## 7. Ejecutar Aseprite
+
+Si la compilación termina correctamente:
+
+```bash
+cd ~/Development/aseprite/build/bin
+./aseprite
+```
+
+Comprobar que el ejecutable existe:
+
+```bash
+file ./aseprite
+```
+
+El resultado debería identificar un ejecutable ELF para Linux x86_64.
+
+## 8. Crear un lanzador en KDE Plasma
+
+Para integrar Aseprite en el menú de aplicaciones de CachyOS, crear un archivo `.desktop`:
+
+```bash
+mkdir -p ~/.local/share/applications
+nano ~/.local/share/applications/aseprite.desktop
+```
+
+Agregar el siguiente contenido, sustituyendo `USUARIO` por el nombre real de tu usuario:
+
+```ini
+[Desktop Entry]
+Type=Application
+Name=Aseprite
+Comment=Pixel art and sprite animation editor
+Exec=/home/USUARIO/Development/aseprite/build/bin/aseprite
+Icon=applications-graphics
+Terminal=false
+Categories=Graphics;2DGraphics;RasterGraphics;
+StartupNotify=true
+```
+
+Actualizar la caché de aplicaciones de KDE:
+
+```bash
+kbuildsycoca6
+```
+
+Aseprite debería aparecer en el lanzador de aplicaciones de Plasma.
+
+## 9. Verificaciones
+
+- [ ] CMake configura el proyecto sin errores.
+- [ ] Ninja completa la compilación.
+- [ ] El ejecutable inicia correctamente.
+- [ ] Se puede crear un sprite.
+- [ ] Las herramientas de dibujo funcionan.
+- [ ] Se pueden crear animaciones.
+- [ ] Se puede guardar un archivo `.aseprite`.
+- [ ] Se pueden exportar imágenes PNG.
+- [ ] El lanzador aparece en KDE Plasma.
+
+## 10. Solución de problemas
+
+### Error: `libskia.a` no existe
+
+Comprobar la ruta:
+
+```bash
+ls -lh "$SKIA_LIBRARY_DIR/libskia.a"
+```
+
+Si el archivo no existe, revisar la extracción y versión de Skia.
+
+### Error: `CMakeCache.txt` incompatible
+
+Si se modificaron compiladores o rutas importantes, limpiar la configuración anterior:
+
+```bash
+cd ~/Development/aseprite
+rm -rf build
+mkdir build
+cd build
+```
+
+Volver a ejecutar la configuración de CMake.
+
+> No eliminar `build` si contiene archivos propios que deban conservarse.
+
+### Error: dependencias faltantes
+
+Revisar los mensajes de CMake para identificar bibliotecas ausentes y comprobar su disponibilidad:
+
+```bash
+pacman -Ss nombre-paquete
+```
+
+### Error: bibliotecas compartidas faltantes
+
+Inspeccionar las dependencias dinámicas del ejecutable:
+
+```bash
+ldd ~/Development/aseprite/build/bin/aseprite
+```
+
+Buscar entradas marcadas como `not found`.
+
+## 11. Referencias
+
+- [Aseprite — GitHub](https://github.com/aseprite/aseprite)
+- [Aseprite — Instrucciones de compilación](https://github.com/aseprite/aseprite/blob/main/INSTALL.md)
+- [Aseprite — Skia](https://github.com/aseprite/skia)
+- [Aseprite — Licencia y preguntas frecuentes](https://www.aseprite.org/faq/)
+
+**Estado:** Procedimiento pendiente de validación en CachyOS.
