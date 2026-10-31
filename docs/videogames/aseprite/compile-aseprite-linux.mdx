@@ -1,3 +1,15 @@
+---
+title: Compilar Aseprite en CachyOS Linux
+sidebar_label: Compilación de Aseprite
+description: Guía para compilar Aseprite desde su código fuente en CachyOS Linux utilizando CMake, Ninja y Skia.
+tags:
+  - aseprite
+  - pixel-art
+  - linux
+  - cpp
+  - compilacion
+---
+
 # Compilación de Aseprite en CachyOS Linux
 
 ## 1. Requisitos
@@ -52,8 +64,8 @@ git --version
 Crear un directorio de trabajo:
 
 ```bash
-mkdir -p ~/Development
-cd ~/Development
+mkdir -p ~/Projects
+cd ~/Projects
 ```
 
 Clonar Aseprite con sus submódulos:
@@ -94,22 +106,28 @@ https://github.com/aseprite/aseprite/blob/main/INSTALL.md
 Crear el directorio de dependencias:
 
 ```bash
-mkdir -p ~/Development/deps
+mkdir -p ~/Projects/aseprite/deps
+cd ~/Projects/aseprite/deps
 ```
 
 Descargar y extraer la versión de Skia para Linux x64 indicada por las instrucciones oficiales.
 
-La estructura esperada para los siguientes comandos es:
+```bash
+curl -fL \
+  -o skia-linux.zip \
+  "https://github.com/aseprite/skia/releases/download/m124-08a5439a6b/Skia-Linux-Release-x64.zip"
+```
 
-```text
-~/Development/
-├── aseprite/
-└── deps/
-    └── skia/
-        ├── include/
-        └── out/
-            └── Release-x64/
-                └── libskia.a
+Descomprimir skia:
+
+```bash
+unzip skia-linux.zip -d ./skia
+```
+
+Comprobar que se haya extraído correctamente:
+
+```bash
+ls -lh ./skia/out/Release-x64/libskia.a
 ```
 
 > **Importante:** no utilizar arbitrariamente la última versión de Skia. Debe ser compatible con la versión de Aseprite que vamos a compilar.
@@ -119,7 +137,7 @@ La estructura esperada para los siguientes comandos es:
 Crear el directorio de compilación:
 
 ```bash
-cd ~/Development/aseprite
+cd ~/Projects/aseprite
 mkdir -p build
 cd build
 ```
@@ -127,7 +145,7 @@ cd build
 Configurar las rutas:
 
 ```bash
-export SKIA_DIR="$HOME/Development/deps/skia"
+export SKIA_DIR="$HOME/Projects/aseprite/deps/skia"
 export SKIA_LIBRARY_DIR="$SKIA_DIR/out/Release-x64"
 ```
 
@@ -169,7 +187,7 @@ El valor `4` controla el número de trabajos simultáneos. Puede ajustarse segú
 Si la compilación termina correctamente:
 
 ```bash
-cd ~/Development/aseprite/build/bin
+cd ~/Projects/aseprite/build/bin
 ./aseprite
 ```
 
@@ -185,10 +203,15 @@ El resultado debería identificar un ejecutable ELF para Linux x86_64.
 
 Para integrar Aseprite en el menú de aplicaciones de CachyOS, crear un archivo `.desktop`:
 
+Primero creamos un directorio en `/opt` para Aseprite en donde copiaremos el directorio build:
+
+````bash
+sudo mkdir -p /opt/aseprite
+sudo cp -rv ~/Projects/aseprite/build /opt/aseprite/
+
 ```bash
-mkdir -p ~/.local/share/applications
-nano ~/.local/share/applications/aseprite.desktop
-```
+nvim ~/.local/share/applications/aseprite.desktop
+````
 
 Agregar el siguiente contenido, sustituyendo `USUARIO` por el nombre real de tu usuario:
 
@@ -197,11 +220,17 @@ Agregar el siguiente contenido, sustituyendo `USUARIO` por el nombre real de tu 
 Type=Application
 Name=Aseprite
 Comment=Pixel art and sprite animation editor
-Exec=/home/USUARIO/Development/aseprite/build/bin/aseprite
-Icon=applications-graphics
+Exec=/opt/aseprite/build/bin/aseprite
+Icon=aseprite
 Terminal=false
 Categories=Graphics;2DGraphics;RasterGraphics;
 StartupNotify=true
+```
+
+Para el icono:
+
+```bash
+cp -v ~/Projects/aseprite/data/icons/ase256.png ~/.local/share/icons/hicolor/256x256/apps/aseprite.png
 ```
 
 Actualizar la caché de aplicaciones de KDE:
@@ -241,7 +270,7 @@ Si el archivo no existe, revisar la extracción y versión de Skia.
 Si se modificaron compiladores o rutas importantes, limpiar la configuración anterior:
 
 ```bash
-cd ~/Development/aseprite
+cd ~/Projects/aseprite
 rm -rf build
 mkdir build
 cd build
@@ -264,7 +293,7 @@ pacman -Ss nombre-paquete
 Inspeccionar las dependencias dinámicas del ejecutable:
 
 ```bash
-ldd ~/Development/aseprite/build/bin/aseprite
+ldd ~/Projects/aseprite/build/bin/aseprite
 ```
 
 Buscar entradas marcadas como `not found`.
