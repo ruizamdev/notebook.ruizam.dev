@@ -1,6 +1,7 @@
 import { themes as prismThemes } from "prism-react-renderer";
 import type { Config } from "@docusaurus/types";
 import type * as Preset from "@docusaurus/preset-classic";
+import type { SidebarItem } from "@docusaurus/plugin-content-docs/lib/sidebars/types";
 
 // This runs in Node.js - Don't use client-side code here (browser APIs, JSX...)
 
@@ -46,6 +47,41 @@ const config: Config = {
       {
         docs: {
           sidebarPath: "./sidebars.ts",
+
+          async sidebarItemsGenerator({
+            defaultSidebarItemsGenerator,
+            ...args
+          }) {
+            const items = await defaultSidebarItemsGenerator(args);
+
+            const sortCategories = (items: SidebarItem[]): SidebarItem[] => {
+              // Ordenar categorías recursivamente
+              const processed = items.map((item) => {
+                if (item.type === "category") {
+                  return {
+                    ...item,
+                    items: sortCategories(item.items),
+                  };
+                }
+
+                return item;
+              });
+
+              // Ordenar solamente categorías
+              return processed.sort((a, b) => {
+                if (a.type === "category" && b.type === "category") {
+                  return a.label.localeCompare(b.label, "es", {
+                    sensitivity: "base",
+                    numeric: true,
+                  });
+                }
+
+                return 0;
+              });
+            };
+
+            return sortCategories(items);
+          },
         },
         blog: {
           showReadingTime: true,

@@ -1,6 +1,5 @@
 {
   "label": "Gráficos",
-  "position": 5,
   "link": {
     "type": "generated-index",
     "description": "Administración de hardware gráfico."

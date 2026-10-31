@@ -1,0 +1,184 @@
+# Crear recursos compartidos
+
+# Linux - Linux
+
+## Server
+
+### 1. Instalación del servidor NFS
+
+Del lado del server instalamos:
+
+```bash
+sudo apt update
+sudo apt install nfs-kernel-server -y
+```
+
+### 2. Creación y permisos de recursos
+
+```bash
+mkdir /path/resource
+sudo chown -R user:user /path/resource
+sudo chmod 755 /path/resource
+```
+
+### 3. Configurar exportaciones
+
+```bash
+sudo vim /etc/exports
+```
+
+Agregar:
+
+```bash
+/path/source <IP_CLIENTE>(rw,sync,no_subtree_check)
+# Ejemplo
+/media/recurso 192.168.1.150(rw,sync,no_subtree_check)
+# Rango de IPs para ingresar desde cualquier ip de la LAN
+/media/recurso 192.168.1.0/24(rw,sync,no_subtree_check)
+```
+
+Significado de las opciones:
+
+`rw` →Lectura/Escritura
+
+`sync` →Escribe inmediato (más seguro)
+
+`no_subtree_check` →Mejor rendimiento
+
+### 4. Aplicar cambios
+
+```bash
+sudo exportfs -ra
+sudo systemctl restart nfs-kernel-server
+```
+
+### 5. Firewall (Con UFW)
+
+```bash
+sudo ufw allow from 192.168.1.0/24 to any port nfs
+```
+
+## Cliente
+
+### 1. Instalación y configuración del cliente
+
+```bash
+sudo apt install nfs-common -y
+```
+
+Crear punto de montaje:
+
+```bash
+sudo mkdir -p /media/<user>/nfs/resource
+```
+
+Montar:
+
+```bash
+sudo mount <IP_SERVER>:/path/resource /media/<user>/nfs/resource
+```
+
+### 2. Montaje automático
+
+```bash
+sudo vim /etc/fstab
+```
+
+Agregar:
+
+```bash
+<IP_SERVER>:/path/resource /media/<user>/nfs/resource nfs defaults,_netdev,nofail,user 0 0
+```
+
+Opciones:
+
+`defaults`
+
+`_netdev`
+
+`nofail`
+
+`user`
+
+# Linux - Windows
+
+## Server
+
+Se crea el recurso como siempre se hace en Windows (En este caso con usuario y contraseña)
+
+## Cliente
+
+### 1. Monaje automático
+
+Crear directorio de montaje:
+
+```bash
+sudo mkdir /media/<user>/smb/resource
+```
+
+Editar fstab:
+
+```bash
+sudo vim /etc/fstab
+```
+
+Agregar:
+
+```bash
+//<IP_SERVER>/resource /media/<user>/smb/resource cifs credentials=/home/<user>/.credential-file,uid=1000,gid=1000,_netdev,nofail,user,vers=3.0 0 0
+```
+
+Opciones:
+
+`credentials=/path/cred-file`
+
+`uid=1000`
+
+`guid=1000`
+
+`_netdev`
+
+`nofail`
+
+`user`
+
+`vers=3.0`
+
+### 2. Fichero de credenciales
+
+Crear y configurar:
+
+```bash
+mkdir /home/<user>/.smbcredentials
+vim /home/<user>/.smbcredentials
+```
+
+Agregar:
+
+```bash
+username=usuario
+password=pass123
+```
+
+Cambiar permisos:
+
+```bash
+chmod 600 /home/<user>/.smbcredentials
+```
+
+# Actualizar fstab
+
+Al editar fstab siempre se actualiza mediante:
+
+```bash
+sudo systemctl daemon-reload
+# Opcional: para montar todo lo agregado
+sudo mount -a
+```
+
+# Cambiar dueño a recursos
+
+```bash
+sudo chown <user>:<user> /media/<user>/smb/*
+sudo chown <user>:<user> /media/<user>/nfs/*
+```
