@@ -1,0 +1,756 @@
+---
+sidebar_position: 1
+---
+
+# Bash — Validaciones, condicionales y loops
+
+Referencia práctica para desarrollar scripts de automatización, instalación de paquetes, administración de sistemas y gestión de dotfiles.
+
+Todos los ejemplos utilizan **Bash**.
+
+```bash
+#!/usr/bin/env bash
+```
+
+## 1. Operadores lógicos
+
+| Operador | Descripción                            |
+| -------- | -------------------------------------- |
+| `&&`     | AND: ambas condiciones deben cumplirse |
+| `\|\|`   | OR: al menos una condición             |
+| `!`      | NOT: niega una condición               |
+| `==`     | Igualdad de cadenas                    |
+| `!=`     | Diferencia de cadenas                  |
+| `=~`     | Coincidencia con expresión regular     |
+
+### AND
+
+```bash
+if [[ -f "$archivo" && -r "$archivo" ]]; then
+    echo "Existe y puede leerse"
+fi
+```
+
+### OR
+
+```bash
+if [[ -f "$ruta" || -d "$ruta" ]]; then
+    echo "Es archivo o directorio"
+fi
+```
+
+### NOT
+
+```bash
+if [[ ! -d "$directorio" ]]; then
+    mkdir -p "$directorio"
+fi
+```
+
+## 2. Validaciones de archivos y directorios
+
+| Operador | Descripción                     |
+| -------- | ------------------------------- |
+| `-e`     | Existe la ruta                  |
+| `-f`     | Archivo regular                 |
+| `-d`     | Directorio                      |
+| `-L`     | Enlace simbólico                |
+| `-s`     | Archivo con tamaño mayor a cero |
+| `-r`     | Permiso de lectura              |
+| `-w`     | Permiso de escritura            |
+| `-x`     | Permiso de ejecución o búsqueda |
+| `-b`     | Dispositivo de bloques          |
+| `-c`     | Dispositivo de caracteres       |
+| `-p`     | Tubería FIFO                    |
+| `-S`     | Socket                          |
+| `-O`     | Pertenece al usuario efectivo   |
+| `-G`     | Pertenece al grupo efectivo     |
+| `-nt`    | Más reciente que otro archivo   |
+| `-ot`    | Más antiguo que otro archivo    |
+| `-ef`    | Misma referencia de archivo     |
+
+### Verificar directorio
+
+```bash
+if [[ ! -d "$HOME/.config/nvim" ]]; then
+    mkdir -p "$HOME/.config/nvim"
+fi
+```
+
+### Verificar archivo
+
+```bash
+if [[ ! -f "$HOME/.bashrc" ]]; then
+    touch "$HOME/.bashrc"
+fi
+```
+
+### Comprobar si está vacío
+
+```bash
+if [[ -f "$archivo" && ! -s "$archivo" ]]; then
+    echo "Archivo vacío"
+fi
+```
+
+### Comprobar permisos
+
+```bash
+if [[ -r "$archivo" && -w "$archivo" ]]; then
+    echo "Lectura y escritura disponibles"
+fi
+```
+
+### Comparar fechas de modificación
+
+```bash
+if [[ "$origen" -nt "$destino" ]]; then
+    cp -- "$origen" "$destino"
+fi
+```
+
+## 3. Variables y entorno
+
+| Expresión     | Descripción                                 |
+| ------------- | ------------------------------------------- |
+| `-v VARIABLE` | Variable definida                           |
+| `-z`          | Cadena vacía                                |
+| `-n`          | Cadena no vacía                             |
+| `:-`          | Valor predeterminado                        |
+| `:=`          | Asignar valor predeterminado                |
+| `:?`          | Error si falta el valor                     |
+| `:+`          | Valor alternativo si existe y no está vacía |
+
+### Variable definida
+
+```bash
+if [[ -v EDITOR ]]; then
+    echo "EDITOR está definida"
+fi
+```
+
+### Variable con contenido
+
+```bash
+if [[ -n "${EDITOR:-}" ]]; then
+    echo "Editor: $EDITOR"
+fi
+```
+
+### Variable vacía o indefinida
+
+```bash
+if [[ -z "${EDITOR:-}" ]]; then
+    echo "EDITOR no tiene contenido"
+fi
+```
+
+### Asignar valor predeterminado
+
+```bash
+EDITOR="${EDITOR:-nvim}"
+```
+
+### Variable obligatoria
+
+```bash
+: "${API_KEY:?API_KEY no está configurada}"
+```
+
+### Variables exportadas desde Fish
+
+```fish
+set -gx EDITOR nvim
+```
+
+Los procesos Bash iniciados desde esa sesión Fish pueden heredar la variable.
+
+```bash
+if [[ -n "${EDITOR:-}" ]]; then
+    echo "$EDITOR"
+fi
+```
+
+## 4. Comparaciones numéricas
+
+| Operador | Descripción   |
+| -------- | ------------- |
+| `-eq`    | Igual         |
+| `-ne`    | Diferente     |
+| `-gt`    | Mayor         |
+| `-ge`    | Mayor o igual |
+| `-lt`    | Menor         |
+| `-le`    | Menor o igual |
+
+### Comparación tradicional
+
+```bash
+if [[ "$edad" -ge 18 ]]; then
+    echo "Mayor de edad"
+fi
+```
+
+### Comparación aritmética
+
+```bash
+if (( edad >= 18 )); then
+    echo "Mayor de edad"
+fi
+```
+
+### Operaciones aritméticas
+
+```bash
+contador=0
+
+((contador += 1))
+((contador *= 2))
+((contador -= 1))
+```
+
+**Nota:** Con `set -e`, expresiones como `((contador++))` pueden terminar el script si el resultado evaluado es cero.
+
+## 5. Validar comandos y paquetes
+
+### Comando disponible
+
+```bash
+if command -v git >/dev/null 2>&1; then
+    echo "Git disponible"
+else
+    echo "Git no encontrado"
+fi
+```
+
+### Paquete instalado con pacman
+
+```bash
+if pacman -Qq git &>/dev/null; then
+    echo "Git instalado"
+else
+    sudo pacman -S --needed git
+fi
+```
+
+### Verificar varios paquetes
+
+```bash
+packages=(git curl wget neovim)
+
+for pkg in "${packages[@]}"; do
+    if pacman -Qq "$pkg" &>/dev/null; then
+        echo "[OK] $pkg"
+    else
+        echo "[MISSING] $pkg"
+    fi
+done
+```
+
+### Instalar paquetes faltantes
+
+```bash
+packages=(git curl wget neovim)
+missing=()
+
+for pkg in "${packages[@]}"; do
+    if ! pacman -Qq "$pkg" &>/dev/null; then
+        missing+=("$pkg")
+    fi
+done
+
+if (( ${#missing[@]} > 0 )); then
+    sudo pacman -S --needed "${missing[@]}"
+fi
+```
+
+## 6. Validar contenido de archivos
+
+### Buscar texto literal
+
+```bash
+if grep -Fq "alias ll=" "$HOME/.bashrc"; then
+    echo "Alias encontrado"
+fi
+```
+
+### Buscar mediante regex
+
+```bash
+if grep -Eq '^[0-9]+$' "$archivo"; then
+    echo "Existe una línea numérica"
+fi
+```
+
+### Agregar contenido si no existe
+
+```bash
+config="$HOME/.bashrc"
+
+touch "$config"
+
+if ! grep -Fq "alias ll=" "$config"; then
+    cat >> "$config" <<'EOF'
+alias ll='ls -lah'
+EOF
+fi
+```
+
+### Sobrescribir mediante heredoc
+
+```bash
+cat > "$HOME/.config/app.conf" <<EOF
+editor=$EDITOR
+theme=dark
+EOF
+```
+
+### Heredoc sin expansión de variables
+
+```bash
+cat > ejemplo.sh <<'EOF'
+#!/usr/bin/env bash
+echo "$HOME"
+EOF
+```
+
+Las comillas en `'EOF'` impiden expandir las variables al generar el archivo.
+
+## 7. Condicionales
+
+### if / elif / else
+
+```bash
+if [[ ! -f "$archivo" ]]; then
+    echo "No existe"
+
+elif [[ ! -s "$archivo" ]]; then
+    echo "Está vacío"
+
+else
+    echo "Existe y tiene contenido"
+fi
+```
+
+### Condicional compacto AND
+
+```bash
+[[ -d "$directorio" ]] && echo "Existe"
+```
+
+### Condicional compacto OR
+
+```bash
+[[ -d "$directorio" ]] || mkdir -p "$directorio"
+```
+
+### case
+
+```bash
+case "$opcion" in
+    install)
+        echo "Instalando"
+        ;;
+    update)
+        echo "Actualizando"
+        ;;
+    remove)
+        echo "Eliminando"
+        ;;
+    *)
+        echo "Opción desconocida"
+        ;;
+esac
+```
+
+### case con múltiples patrones
+
+```bash
+case "$respuesta" in
+    y|Y|yes|YES)
+        echo "Confirmado"
+        ;;
+    n|N|no|NO)
+        echo "Cancelado"
+        ;;
+    *)
+        echo "Respuesta inválida"
+        ;;
+esac
+```
+
+## 8. Ciclos y loops
+
+### for con lista
+
+```bash
+for paquete in git curl wget; do
+    echo "$paquete"
+done
+```
+
+### for con array
+
+```bash
+packages=(git curl wget)
+
+for pkg in "${packages[@]}"; do
+    echo "$pkg"
+done
+```
+
+### for con archivos
+
+```bash
+for archivo in "$HOME"/.config/*.conf; do
+    [[ -f "$archivo" ]] || continue
+    echo "$archivo"
+done
+```
+
+### for numérico
+
+```bash
+for ((i = 0; i < 10; i++)); do
+    echo "$i"
+done
+```
+
+### while
+
+```bash
+contador=1
+
+while (( contador <= 5 )); do
+    echo "$contador"
+    ((contador += 1))
+done
+```
+
+### until
+
+```bash
+contador=1
+
+until (( contador > 5 )); do
+    echo "$contador"
+    ((contador += 1))
+done
+```
+
+### while read
+
+```bash
+while IFS= read -r linea || [[ -n "$linea" ]]; do
+    echo "$linea"
+done < archivo.txt
+```
+
+### break
+
+Termina el ciclo.
+
+```bash
+for i in {1..10}; do
+    if (( i == 5 )); then
+        break
+    fi
+    echo "$i"
+done
+```
+
+### continue
+
+Salta a la siguiente iteración.
+
+```bash
+for i in {1..10}; do
+    if (( i == 5 )); then
+        continue
+    fi
+    echo "$i"
+done
+```
+
+## 9. Validaciones del sistema
+
+### Usuario existente
+
+```bash
+if id "usuario" &>/dev/null; then
+    echo "Usuario encontrado"
+fi
+```
+
+### Grupo existente
+
+```bash
+if getent group docker >/dev/null; then
+    echo "Grupo docker encontrado"
+fi
+```
+
+### Servicio activo
+
+```bash
+if systemctl is-active --quiet docker; then
+    echo "Docker activo"
+fi
+```
+
+### Servicio habilitado
+
+```bash
+if systemctl is-enabled --quiet docker; then
+    echo "Docker habilitado"
+fi
+```
+
+### Proceso en ejecución
+
+```bash
+if pgrep -x sshd >/dev/null; then
+    echo "Proceso encontrado"
+fi
+```
+
+### Punto de montaje
+
+```bash
+if mountpoint -q /mnt/data; then
+    echo "Ruta montada"
+fi
+```
+
+## 10. Validaciones de red
+
+### Ping
+
+```bash
+if ping -c 1 -W 2 192.168.1.1 >/dev/null 2>&1; then
+    echo "Host responde"
+fi
+```
+
+### Puerto TCP
+
+```bash
+if nc -z -w 3 192.168.1.1 22; then
+    echo "Puerto accesible"
+fi
+```
+
+### Endpoint HTTP
+
+```bash
+if curl -fsS --max-time 10 https://example.com >/dev/null; then
+    echo "Endpoint disponible"
+fi
+```
+
+### Resolver dominio
+
+```bash
+if getent ahosts example.com >/dev/null; then
+    echo "Resolución disponible"
+fi
+```
+
+## 11. Códigos de salida
+
+En Bash, el código `0` representa éxito. Un valor diferente indica fallo o una condición no satisfecha.
+
+### Comprobar ejecución
+
+```bash
+if git pull; then
+    echo "Actualización correcta"
+else
+    echo "Error"
+fi
+```
+
+### Capturar código de salida
+
+```bash
+resultado=0
+git pull || resultado=$?
+
+if (( resultado == 0 )); then
+    echo "Correcto"
+else
+    echo "Error: $resultado"
+fi
+```
+
+## 12. Funciones y retornos
+
+### Declarar función
+
+```bash
+verificar_paquete() {
+    pacman -Qq "$1" &>/dev/null
+}
+```
+
+### Utilizar función como condición
+
+```bash
+if verificar_paquete git; then
+    echo "Git instalado"
+fi
+```
+
+### Función con parámetros
+
+```bash
+crear_directorio() {
+    local ruta="$1"
+
+    if [[ ! -d "$ruta" ]]; then
+        mkdir -p "$ruta"
+    fi
+}
+
+crear_directorio "$HOME/.config/myapp"
+```
+
+### Retornar éxito o fallo
+
+```bash
+existe_config() {
+    [[ -f "$HOME/.config/myapp.conf" ]]
+}
+
+if existe_config; then
+    echo "Configuración encontrada"
+fi
+```
+
+## 13. Arrays
+
+### Declaración
+
+```bash
+packages=(git curl wget)
+```
+
+### Recorrer elementos
+
+```bash
+for pkg in "${packages[@]}"; do
+    echo "$pkg"
+done
+```
+
+### Número de elementos
+
+```bash
+echo "${#packages[@]}"
+```
+
+### Agregar elementos
+
+```bash
+packages+=("neovim")
+```
+
+### Comprobar si está vacío
+
+```bash
+if (( ${#packages[@]} == 0 )); then
+    echo "Array vacío"
+fi
+```
+
+### Arrays asociativos
+
+```bash
+declare -A config=(
+    [editor]="nvim"
+    [shell]="fish"
+    [terminal]="kitty"
+)
+
+echo "${config[editor]}"
+```
+
+## 14. Script de ejemplo completo
+
+```bash
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+CONFIG_DIR="$HOME/.config"
+PACKAGES=(git curl wget neovim)
+missing=()
+
+# Validar directorio
+if [[ ! -d "$CONFIG_DIR" ]]; then
+    mkdir -p "$CONFIG_DIR"
+fi
+
+# Validar paquetes
+for pkg in "${PACKAGES[@]}"; do
+    if pacman -Qq "$pkg" &>/dev/null; then
+        echo "[OK] $pkg"
+    else
+        missing+=("$pkg")
+    fi
+done
+
+# Instalar faltantes
+if (( ${#missing[@]} > 0 )); then
+    sudo pacman -S --needed "${missing[@]}"
+fi
+
+# Validar variable
+EDITOR="${EDITOR:-nvim}"
+
+# Crear configuración
+config_file="$CONFIG_DIR/myapp.conf"
+
+if [[ ! -f "$config_file" ]]; then
+    cat > "$config_file" <<EOF
+editor=$EDITOR
+theme=dark
+EOF
+fi
+
+echo "Configuración completada"
+```
+
+## 15. Buenas prácticas
+
+- Utilizar `[[ ... ]]` para condiciones en Bash.
+- Utilizar `(( ... ))` para operaciones aritméticas.
+- Utilizar comillas en expansiones de variables.
+- Preferir arrays para listas de argumentos.
+- Utilizar `command -v` para verificar comandos.
+- Utilizar `grep -Fq` para buscar texto literal.
+- Utilizar `set -euo pipefail` entendiendo sus excepciones.
+- Diseñar scripts idempotentes.
+- Comprobar los códigos de salida de comandos importantes.
+- Utilizar `shellcheck` para análisis estático.
+
+### Validar sintaxis
+
+```bash
+bash -n script.sh
+```
+
+### Analizar con ShellCheck
+
+```bash
+shellcheck script.sh
+```
+
+### Depurar ejecución
+
+```bash
+bash -x script.sh
+```
+
+---
+
+**Referencia:** [GNU Bash Reference Manual](https://www.gnu.org/software/bash/manual/bash.html)
