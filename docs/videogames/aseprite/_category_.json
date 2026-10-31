@@ -1,0 +1,7 @@
+{
+  "label": "Aseprite",
+  "link": {
+    "type": "generated-index",
+    "description": "Compilación de Aseprite desde el código fuente en Linux, Windows y MacOS. Incluye instrucciones para instalar dependencias, compilar y ejecutar Aseprite."
+  }
+}

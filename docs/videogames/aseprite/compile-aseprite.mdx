@@ -1,0 +1,407 @@
+---
+title: Compilar Aseprite en Windows
+sidebar_label: Compilación de Aseprite
+description: Guía para compilar Aseprite desde su código fuente en Windows utilizando Visual Studio 2022, CMake, Ninja y Skia.
+tags:
+  - aseprite
+  - pixel-art
+  - windows
+  - cpp
+  - compilacion
+---
+
+# Compilar Aseprite desde el código fuente
+
+## 1. Introducción
+
+Aseprite es un editor de pixel art y animaciones 2D cuyo código fuente está disponible públicamente en GitHub.
+
+Esta guía describe cómo preparar un entorno de desarrollo y compilar Aseprite para Windows a partir de su repositorio oficial.
+
+### Entorno utilizado
+
+| Componente | Configuración |
+|---|---|
+| Sistema anfitrión | CachyOS Linux |
+| Virtualización | QEMU/KVM |
+| Sistema invitado | Windows 10 x64 |
+| IDE y compilador | Visual Studio Community 2022 |
+| Toolchain | MSVC v143 |
+| Windows SDK | 10.0.26100.7705 |
+| Build system | CMake + Ninja |
+| Biblioteca gráfica | Skia |
+| Control de versiones | Git |
+
+:::caution Compatibilidad
+La documentación oficial de Aseprite utiliza Windows 11 como plataforma de referencia. Nuestra máquina virtual utiliza Windows 10, por lo que esta configuración debe considerarse experimental hasta completar la compilación y las pruebas.
+:::
+
+---
+
+## 2. Requisitos
+
+### 2.1 Recursos recomendados
+
+Para la máquina virtual:
+
+- Arquitectura x64.
+- 4 vCPU o más.
+- 8 GB de RAM recomendados.
+- 25–40 GB de almacenamiento libre.
+- Conexión a Internet.
+
+### 2.2 Herramientas
+
+| Herramienta | Descarga |
+|---|---|
+| Visual Studio Community 2022 | [Instalador oficial](https://aka.ms/vs/17/release/vs_community.exe) |
+| Git | [Git for Windows](https://git-scm.com/downloads/win) |
+| CMake | [CMake](https://cmake.org/download/) |
+| Ninja | [Ninja Releases](https://github.com/ninja-build/ninja/releases) |
+| Aseprite | [Repositorio oficial](https://github.com/aseprite/aseprite) |
+
+---
+
+## 3. Instalar Visual Studio 2022
+
+Ejecutar el instalador de Visual Studio Community 2022.
+
+### 3.1 Workloads
+
+Seleccionar:
+
+- **Desktop development with C++**
+
+No es necesario instalar workloads de .NET, Python, Azure o Unity.
+
+### 3.2 Componentes individuales
+
+Verificar que estén seleccionados:
+
+- MSVC v143 - VS 2022 C++ x64/x86 Build Tools.
+- C++ core desktop features.
+- C++ CMake tools for Windows.
+- Windows SDK 10.0.26100.7705.
+
+C++ Build Insights puede mantenerse instalado, aunque no es imprescindible.
+
+### 3.3 Componentes opcionales innecesarios
+
+Para esta compilación podemos omitir:
+
+- C++ ATL y MFC.
+- Just-In-Time Debugger.
+- C++ Profiling Tools.
+- Boost.Test Adapter.
+- Google Test Adapter.
+- IntelliCode.
+- AddressSanitizer.
+- vcpkg.
+- GitHub Copilot.
+
+Una vez seleccionados los componentes, ejecutar la instalación.
+
+---
+
+## 4. Preparar la terminal de compilación
+
+Desde el menú Inicio, buscar y abrir:
+
+**x64 Native Tools Command Prompt for VS 2022**
+
+Esta terminal inicializa las variables de entorno del compilador MSVC.
+
+Como alternativa, desde CMD:
+
+```bat
+call "C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\Tools\VsDevCmd.bat" -arch=x64
+```
+
+### 4.1 Verificar el compilador
+
+```bat
+cl
+```
+
+El resultado debe identificar Microsoft C/C++ Optimizing Compiler para x64.
+
+Es normal que aparezca un mensaje indicando que no se proporcionaron archivos fuente.
+
+### 4.2 Verificar CMake
+
+```bat
+cmake --version
+```
+
+### 4.3 Verificar Ninja
+
+```bat
+ninja --version
+```
+
+### 4.4 Verificar Git
+
+```bat
+git --version
+```
+
+:::tip
+Si alguno de estos comandos no se reconoce, revisar su instalación y las variables de entorno `PATH` antes de continuar.
+:::
+
+---
+
+## 5. Descargar el código fuente
+
+Abrir la terminal de desarrollo y situarse en la raíz de la unidad C:
+
+```bat
+cd /d C:\
+```
+
+Clonar el repositorio junto con sus submódulos:
+
+```bat
+git clone --recursive --branch v1.3.18.6 https://github.com/aseprite/aseprite.git
+```
+
+:::note
+Utilizamos `v1.3.18.6` como versión de referencia del procedimiento. Antes de compilar, debemos confirmar que la etiqueta existe y que el script de compilación de esa versión admite las herramientas instaladas.
+:::
+
+Acceder al proyecto:
+
+```bat
+cd /d C:\aseprite
+```
+
+### 5.1 Verificar el repositorio
+
+```bat
+git status
+git describe --tags --always
+```
+
+Comprobar los submódulos:
+
+```bat
+git submodule status
+```
+
+Si falta alguno, ejecutar:
+
+```bat
+git submodule update --init --recursive
+```
+
+---
+
+## 6. Compilación automática
+
+Aseprite proporciona un script de compilación para Windows que facilita la configuración del entorno y las dependencias.
+
+### 6.1 Verificar el script
+
+Desde la raíz del proyecto:
+
+```bat
+cd /d C:\aseprite
+dir build.cmd
+```
+
+Si existe, podemos continuar con el procedimiento automático.
+
+### 6.2 Ejecutar la compilación
+
+```bat
+build.cmd
+```
+
+El script puede solicitar configuraciones adicionales y gestionar la descarga o preparación de dependencias, incluida Skia, dependiendo de la versión del repositorio.
+
+Seguir las instrucciones que aparezcan en pantalla.
+
+:::warning
+La primera compilación puede tardar considerablemente, especialmente dentro de una máquina virtual. No interrumpir el proceso mientras continúe trabajando.
+:::
+
+---
+
+## 7. Compilación manual (alternativa)
+
+Si el script automático no funciona, podemos utilizar CMake y Ninja directamente.
+
+Este método requiere disponer previamente de una compilación compatible de Skia.
+
+### 7.1 Preparar Skia
+
+Consultar las dependencias oficiales:
+
+https://github.com/aseprite/skia
+
+Para este ejemplo se supone que Skia está disponible en:
+
+```text
+C:\deps\skia
+```
+
+La versión y la compilación de Skia deben corresponder a los requisitos de la versión de Aseprite seleccionada.
+
+### 7.2 Crear el directorio de compilación
+
+```bat
+cd /d C:\aseprite
+mkdir build
+cd build
+```
+
+### 7.3 Configurar CMake
+
+```bat
+cmake ^
+  -DCMAKE_BUILD_TYPE=RelWithDebInfo ^
+  -DLAF_BACKEND=skia ^
+  -DSKIA_DIR=C:\deps\skia ^
+  -DSKIA_LIBRARY_DIR=C:\deps\skia\out\Release-x64 ^
+  -DSKIA_LIBRARY=C:\deps\skia\out\Release-x64\skia.lib ^
+  -G Ninja ^
+  ..
+```
+
+:::info
+Las rutas de Skia son ejemplos basados en la estructura utilizada por la documentación oficial. Deben ajustarse a la ubicación real de la biblioteca.
+:::
+
+### 7.4 Compilar con Ninja
+
+```bat
+ninja aseprite
+```
+
+Ninja procesará las instrucciones generadas por CMake y compilará el proyecto utilizando MSVC.
+
+---
+
+## 8. Ejecutar Aseprite
+
+Si la compilación termina correctamente, el ejecutable normalmente estará ubicado en:
+
+```text
+C:\aseprite\build\bin\aseprite.exe
+```
+
+Ejecutarlo desde CMD:
+
+```bat
+cd /d C:\aseprite\build\bin
+aseprite.exe
+```
+
+### Validaciones
+
+- [ ] El ejecutable existe.
+- [ ] La aplicación inicia sin errores.
+- [ ] Se puede crear un sprite.
+- [ ] Las herramientas de dibujo funcionan.
+- [ ] Se pueden crear animaciones.
+- [ ] Se puede guardar un archivo `.aseprite`.
+- [ ] Se puede exportar una imagen PNG.
+- [ ] Se puede exportar un spritesheet.
+
+---
+
+## 9. Solución de problemas
+
+### 9.1 `cl` no se reconoce
+
+**Causa probable:** la terminal no tiene inicializado el entorno MSVC.
+
+**Solución:** abrir `x64 Native Tools Command Prompt for VS 2022` y volver a ejecutar:
+
+```bat
+cl
+```
+
+### 9.2 `cmake` no se reconoce
+
+**Causa probable:** CMake no está instalado o no se encuentra en el `PATH`.
+
+**Solución:** comprobar su instalación y agregar su directorio `bin` a las variables de entorno.
+
+### 9.3 `ninja` no se reconoce
+
+**Causa probable:** Ninja no está instalado o su ubicación no está registrada en el `PATH`.
+
+**Solución:** instalar Ninja y verificar:
+
+```bat
+where ninja
+```
+
+### 9.4 Errores relacionados con Skia
+
+**Posibles causas:**
+
+- Versión incompatible.
+- Biblioteca incompleta.
+- Arquitectura incorrecta.
+- Rutas mal configuradas.
+
+**Solución:** comprobar la versión requerida por Aseprite y revisar las variables `SKIA_DIR`, `SKIA_LIBRARY_DIR` y `SKIA_LIBRARY`.
+
+### 9.5 CMake detecta MinGW
+
+Aseprite no admite oficialmente MinGW para su compilación en Windows.
+
+Comprobar el compilador:
+
+```bat
+where cl
+where gcc
+```
+
+Utilizar MSVC y configurar nuevamente el directorio de compilación si CMake había seleccionado un compilador incorrecto.
+
+---
+
+## 10. Licencia y distribución
+
+Aseprite publica su código fuente bajo una licencia propia.
+
+Se permite compilar el programa y utilizarlo para crear recursos gráficos, incluso para proyectos comerciales, conforme a sus términos.
+
+Sin embargo, la disponibilidad pública del código fuente no autoriza la redistribución de compilaciones modificadas o no modificadas del editor.
+
+Consultar siempre la licencia oficial antes de distribuir cualquier compilación.
+
+- [Licencia de Aseprite](https://github.com/aseprite/aseprite/blob/main/EULA.txt)
+- [Preguntas frecuentes](https://www.aseprite.org/faq/)
+
+---
+
+## 11. Referencias
+
+- [Repositorio oficial de Aseprite](https://github.com/aseprite/aseprite)
+- [Instrucciones oficiales de compilación](https://github.com/aseprite/aseprite/blob/main/INSTALL.md)
+- [Script de compilación de Windows](https://github.com/aseprite/aseprite/blob/main/build.cmd)
+- [Repositorio de Skia para Aseprite](https://github.com/aseprite/skia)
+- [Visual Studio 2022](https://visualstudio.microsoft.com/)
+
+---
+
+## 12. Registro del procedimiento
+
+| Etapa | Estado |
+|---|---|
+| Preparación de VM Windows 10 | Completada |
+| Selección de Visual Studio 2022 | Completada |
+| Instalación de herramientas | Reportada como completada |
+| Verificación de versiones | Pendiente de confirmar |
+| Clonación de Aseprite | Pendiente de confirmar |
+| Preparación de Skia | Pendiente |
+| Compilación | Pendiente de confirmar |
+| Pruebas del ejecutable | Pendiente |
+
+**Documento:** Guía de compilación de Aseprite  
+**Versión:** 1.0  
+**Última revisión:** 2026-10-31
