@@ -1,0 +1,58 @@
+---
+sidebar_position: 3
+---
+
+# Configurar onedrive en Linux
+
+**Distro**: CachyOS
+
+## 1. Instalar onedriver
+
+```bash
+yay -S aur/onedriver
+```
+
+## 2. Crear un punto de montaje
+
+```bash
+mkdir -p $HOME/OneDrive
+```
+
+## 3. Configurar onedriver
+
+**Autenticación**
+
+La primera vez pedirá autenticación con la cuenta de Microsoft, abrirá un navegador para iniciar sesión y dar permisos a la aplicación.
+
+```bash
+onedriver $HOME/OneDrive
+```
+
+Ya verifcado el montaje, podemo parar el proceso con `Ctrl+C` y continuar con la configuración.
+
+**Verificamos el montaje**
+
+```bash
+findmnt -T $HOME/OneDrive
+```
+
+**Configuramos el montaje automático**
+
+Primero verificamos la unidad de servicio:
+
+```bash
+systemctl --user list-unit-files | grep onedriver
+```
+
+Ya verificado, habilitamos el servicio y lo iniciamos:
+
+```bash
+systemctl --user enable "onedriver@$(systemd-escape --path ~/OneDrive).service"
+systemctl --user start "onedriver@$(systemd-escape --path ~/OneDrive).service"
+```
+
+**Verificamos el servicio**
+
+```bash
+systemctl --user status "onedriver@$(systemd-escape --path ~/OneDrive).service"
+```
