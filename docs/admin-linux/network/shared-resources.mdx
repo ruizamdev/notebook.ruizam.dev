@@ -58,6 +58,12 @@ sudo systemctl restart nfs-kernel-server
 sudo ufw allow from 192.168.1.0/24 to any port nfs
 ```
 
+### 5. Revisar que recursos compartidos estén activos
+
+```bash
+findmnt -t nfs,nfs4
+```
+
 ## Cliente
 
 ### 1. Instalación y configuración del cliente
