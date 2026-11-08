@@ -1,0 +1,65 @@
+---
+title: Montar y desmontar volúmenes en Linux
+sidebar_label: Gestión de almacenamiento
+description: Guía para montar y desmontar volúmenes de almacenamiento en Linux, incluyendo sistemas de archivos comunes y opciones de montaje.
+tags:
+  - linux
+  - almacenamiento
+  - montaje
+  - desmontaje
+---
+
+# Montar y Desmontar Volúmenes en Linux
+
+## 1. Maneras de reconocer discos y particiones
+
+### `lsblk`
+
+```bash
+lsblk -f
+```
+
+Esto muestra una lista de todos los dispositivos y sus particiones, el tipo de sistema de archivos, la versión de l fs, su etiqueta, el UUID, espacio disponible, porcentaje de uso y punto de montaje.
+
+Ejemplo:
+
+```bash
+NAME        FSTYPE FSVER LABEL       UUID                                 FSAVAIL FSUSE% MOUNTPOINTS
+sda
+├─sda1      ntfs         WinUserData XXXXXXXXXXXXX
+└─sda2      ext4   1.0               XXXXXXXXXXXXX                          36.8G    84% /home
+zram0       swap   1     zram0       XXXXXXXXXXXXX                                       [SWAP]
+nvme0n1
+├─nvme0n1p1 vfat   FAT32 EFI         XXXXXXXXXXXXX                         982.6M     4% /boot/efi
+├─nvme0n1p2
+├─nvme0n1p3 ntfs         Windows     XXXXXXXXXXXXX
+├─nvme0n1p4 ntfs                     XXXXXXXXXXXXX
+├─nvme0n1p5 ext4   1.0   root        XXXXXXXXXXXXX                          110.2G    60% /
+└─nvme0n1p6 swap   1     swap        XXXXXXXXXXXXX                                       [SWAP]
+```
+
+Este es el comando que más utilizo para identificar discos y particiones, ya que muestra la información de manera clara y concisa.
+
+Es posible escoger el tipo de información que se desea mostrar con el flag `-o` seguido de los campos que se desean mostrar, por ejemplo:
+
+```bash
+lsblk -o NAME,SIZE,UUID
+```
+
+Puedes consultar la lista de columnas disponibles para esta opcion con:
+
+```bash
+lsblk --list-columns
+```
+
+Otra forma de identificar discos y particiones es con el comando `fdisk`
+
+### `fdisk`
+
+```bash
+sudo fdisk -l
+```
+
+```bash
+sudo fuser -v m /ruta/del/punto/de/montaje
+```
