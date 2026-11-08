@@ -1,6 +1,6 @@
 ---
 title: Compilar Aseprite en Windows
-sidebar_label: Compilación de Aseprite
+sidebar_label: Compilación de Aseprite en Windows
 description: Guía para compilar Aseprite desde su código fuente en Windows utilizando Visual Studio 2022, CMake, Ninja y Skia.
 tags:
   - aseprite
@@ -20,17 +20,17 @@ Esta guía describe cómo preparar un entorno de desarrollo y compilar Aseprite 
 
 ### Entorno utilizado
 
-| Componente | Configuración |
-|---|---|
-| Sistema anfitrión | CachyOS Linux |
-| Virtualización | QEMU/KVM |
-| Sistema invitado | Windows 10 x64 |
-| IDE y compilador | Visual Studio Community 2022 |
-| Toolchain | MSVC v143 |
-| Windows SDK | 10.0.26100.7705 |
-| Build system | CMake + Ninja |
-| Biblioteca gráfica | Skia |
-| Control de versiones | Git |
+| Componente           | Configuración                |
+| -------------------- | ---------------------------- |
+| Sistema anfitrión    | CachyOS Linux                |
+| Virtualización       | QEMU/KVM                     |
+| Sistema invitado     | Windows 10 x64               |
+| IDE y compilador     | Visual Studio Community 2022 |
+| Toolchain            | MSVC v143                    |
+| Windows SDK          | 10.0.26100.7705              |
+| Build system         | CMake + Ninja                |
+| Biblioteca gráfica   | Skia                         |
+| Control de versiones | Git                          |
 
 :::caution Compatibilidad
 La documentación oficial de Aseprite utiliza Windows 11 como plataforma de referencia. Nuestra máquina virtual utiliza Windows 10, por lo que esta configuración debe considerarse experimental hasta completar la compilación y las pruebas.
@@ -52,13 +52,13 @@ Para la máquina virtual:
 
 ### 2.2 Herramientas
 
-| Herramienta | Descarga |
-|---|---|
+| Herramienta                  | Descarga                                                            |
+| ---------------------------- | ------------------------------------------------------------------- |
 | Visual Studio Community 2022 | [Instalador oficial](https://aka.ms/vs/17/release/vs_community.exe) |
-| Git | [Git for Windows](https://git-scm.com/downloads/win) |
-| CMake | [CMake](https://cmake.org/download/) |
-| Ninja | [Ninja Releases](https://github.com/ninja-build/ninja/releases) |
-| Aseprite | [Repositorio oficial](https://github.com/aseprite/aseprite) |
+| Git                          | [Git for Windows](https://git-scm.com/downloads/win)                |
+| CMake                        | [CMake](https://cmake.org/download/)                                |
+| Ninja                        | [Ninja Releases](https://github.com/ninja-build/ninja/releases)     |
+| Aseprite                     | [Repositorio oficial](https://github.com/aseprite/aseprite)         |
 
 ---
 
@@ -391,16 +391,16 @@ Consultar siempre la licencia oficial antes de distribuir cualquier compilación
 
 ## 12. Registro del procedimiento
 
-| Etapa | Estado |
-|---|---|
-| Preparación de VM Windows 10 | Completada |
-| Selección de Visual Studio 2022 | Completada |
-| Instalación de herramientas | Reportada como completada |
-| Verificación de versiones | Pendiente de confirmar |
-| Clonación de Aseprite | Pendiente de confirmar |
-| Preparación de Skia | Pendiente |
-| Compilación | Pendiente de confirmar |
-| Pruebas del ejecutable | Pendiente |
+| Etapa                           | Estado                    |
+| ------------------------------- | ------------------------- |
+| Preparación de VM Windows 10    | Completada                |
+| Selección de Visual Studio 2022 | Completada                |
+| Instalación de herramientas     | Reportada como completada |
+| Verificación de versiones       | Pendiente de confirmar    |
+| Clonación de Aseprite           | Pendiente de confirmar    |
+| Preparación de Skia             | Pendiente                 |
+| Compilación                     | Pendiente de confirmar    |
+| Pruebas del ejecutable          | Pendiente                 |
 
 **Documento:** Guía de compilación de Aseprite  
 **Versión:** 1.0  
