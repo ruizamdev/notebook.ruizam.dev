@@ -1,0 +1,16 @@
+services:
+  web:
+    build: .                                                          # local: docker compose up -d --build
+    image: ghcr.io/ruizamdev/notebook.ruizam.dev:${IMAGE_TAG:-latest} # VPS:   docker compose pull && up -d
+    container_name: notebook-web
+    restart: unless-stopped
+    networks: [proxy]
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.notebook.rule=Host(`${HOST:-notebook.ruizam.dev}`)"
+      - "traefik.http.routers.notebook.entrypoints=${TRAEFIK_ENTRYPOINT:-websecure}"
+      - "traefik.http.services.notebook.loadbalancer.server.port=80"
+
+networks:
+  proxy:
+    external: true
