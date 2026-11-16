@@ -1,5 +1,5 @@
 # ---- Build ----
-FROM node:22-alpine AS Build
+FROM node:22-alpine AS build
 WORKDIR /app
 RUN corepack enable # use pnpm@10.33.2 fijado en package.json
 COPY package.json pnpm-lock.yaml ./
