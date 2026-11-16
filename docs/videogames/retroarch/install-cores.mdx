@@ -87,7 +87,7 @@ sudo pacman -S --needed curl unzip git
 https://buildbot.libretro.com/nightly/linux/x86_64/latest/
 
 **Ficheros info:**
-https://raw.githubusercontent.com/libretro/libretro-core-info/master
+https://raw.githubusercontent.com/libretro/libretro-core-info/refs/heads/master
 
 Los archivos disponibles pueden cambiar con el tiempo. Verificar su existencia si alguna descarga devuelve un error 404.
 
@@ -103,3 +103,46 @@ Los archivos disponibles pueden cambiar con el tiempo. Verificar su existencia s
 
 - [Nintendo64](#)
 - [GameCube/Wii](#)
+
+## 4. Script para instalar núcleos
+
+```bash
+#!/usr/bin/env bash
+
+# ----------------
+# Script para instalar núcleos de RetroArch en CachyOS
+# Copia y pega este scirpt en un fichero, colocale un nombre y dale permisos de ejecución con chmod +x <nombre_del_script>
+# ----------------
+
+corename="$1"
+
+
+racorezip="$1_libretro.so.zip"
+racore="$1_libretro.so"
+infofile="$1_libretro.info"
+tmpdir=$(mktemp -d)
+
+if [[ -z "$corename" ]]; then
+  echo "Uso: $0 <nombre_del_nucleo>"
+  exit 1
+fi
+
+if [[ ! -f "$RA_CORES/$racore" ]]; then
+  echo "El núcleo '$corename' no está instalado."
+  echo "Descargando '$corename'..."
+  curl -fl --retry 3 "$RA_CORES_URL/$racorezip" -o "$tmpdir/$racorezip" || { echo "Error al descargar el núcleo"; exit 1; }
+  echo "Descomprimiendo '$racorezip'..."
+  unzip -o "$tmpdir/$racore" -d "$RA_CORES" || { echo "Error al descomprimir el núcleo"; exit 1; }
+  echo "Núcleo '$corename' instalado correctamente."
+fi
+echo "El núcleo '$corename' ya está instalado."
+
+if [[ ! -f "$RA_CORES/$infofile" ]]; then
+  echo "El archivo de información '$infofile' no está presente."
+  echo "Descargando '$infofile'..."
+  curl -fl "$RA_INFO_URL/$infofile" -o "$RA_CORES/$infofile" || { echo "Error al descargar el archivo info"; exit 1; }
+  echo "Archivo de información '$infofile' descargado correctamente."
+fi
+echo "El archivo de información '$infofile' ya está presente."
+rm -rf "$tmpdir"
+```
